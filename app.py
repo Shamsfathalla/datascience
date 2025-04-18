@@ -1,17 +1,41 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
+import zipfile
+import os
+import requests
+
+# Path to store the downloaded zip file and the extracted model
+zip_file_path = 'model.zip'
+extracted_model_path = 'price_model.pkl'
+
+# Function to download and unzip the model
+def download_and_unzip_model():
+    if not os.path.exists(extracted_model_path):
+        # Replace with your model's raw GitHub URL (the URL for raw file)
+        raw_github_url = 'https://github.com/yourusername/yourrepo/raw/main/model.zip'
+
+        # Download the zip file
+        with requests.get(raw_github_url) as r:
+            with open(zip_file_path, 'wb') as f:
+                f.write(r.content)
+
+        # Unzip the file
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall()
+
+# Unzip the model if it hasn't been extracted yet
+download_and_unzip_model()
 
 # Load dataset and model
 df = pd.read_csv("feature_engineered_dataset.csv")
-model = joblib.load("price_model.pkl")
+model = joblib.load(extracted_model_path)
 
-st.title("🏡 US Real Estate Dashboard & Price Predictor")
+st.title("US Real Estate Dashboard & Price Predictor")
 
-st.markdown("## 📈 Visualizations")
+st.markdown("##  Visualizations")
 
 # Q1: Price vs Region
 st.subheader("1. Average Price by Region")
@@ -46,7 +70,7 @@ ax4.set_xlabel("Area Type")
 st.pyplot(fig4)
 
 # 🔮 Prediction section
-st.markdown("## 🧠 Predict Property Price")
+st.markdown("## Predict Property Price")
 with st.form("predict_form"):
     bed = st.slider("Bedrooms", 1, 10, 3)
     bath = st.slider("Bathrooms", 1, 10, 2)
@@ -80,4 +104,4 @@ with st.form("predict_form"):
         ])
 
         prediction = model.predict(input_data)[0]
-        st.success(f"🏷️ Predicted Scaled Price: {prediction:.4f}")
+        st.success(f"🏷 Predicted Scaled Price: {prediction:.4f}")
