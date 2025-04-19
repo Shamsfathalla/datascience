@@ -29,7 +29,6 @@ def load_data():
             if csv_file_name:
                 with zip_ref.open(csv_file_name) as csv_file:
                     df = pd.read_csv(csv_file)
-                    st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
                     
                     # Mapping for readability
                     area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
@@ -47,18 +46,17 @@ def load_data():
                     
                     return df
             else:
-                st.error("CSV file not found in the zip archive")
                 return None
                 
     except Exception as e:
-        st.error(f"Failed to load data from GitHub: {str(e)}")
         return None
 
-# Load the data (will be cached after first run)
+# Load the data and handle UI feedback
 df = load_data()
-
-if df is None:
-    st.error("Critical Error: Could not load dataset. Please check the data source.")
+if df is not None:
+    st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
+else:
+    st.error("Failed to load data from GitHub or CSV file not found in the zip archive")
     st.stop()
 
 # Title
