@@ -7,11 +7,26 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
-# Load the dataset
+# Load the dataset with fallback to GitHub
 @st.cache_data
 def load_data():
-    csv_file_path = os.path.join('datasets', 'feature_engineered_dataset_capped_scaled.csv')
-    return pd.read_csv(csv_file_path)
+    # Try local path first
+    local_path = r"C:\Users\shams\datasets\feature_engineered_dataset_capped_scaled.csv"
+    github_path = "https://raw.githubusercontent.com/Shamsfathalla/datascience/main/datasets/feature_engineered_dataset_capped_scaled.csv"
+    
+    try:
+        df = pd.read_csv(local_path)
+        st.sidebar.success("Loaded data from local path")
+        return df
+    except Exception as e:
+        st.sidebar.warning(f"Local load failed: {str(e)}. Trying GitHub...")
+        try:
+            df = pd.read_csv(github_path)
+            st.sidebar.success("Loaded data from GitHub")
+            return df
+        except Exception as e:
+            st.error(f"Failed to load data from both sources: {str(e)}")
+            return None
 
 df = load_data()
 
