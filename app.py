@@ -98,52 +98,62 @@ if section == "Home":
              caption="U.S. Housing Market Analysis", use_column_width=True)
 
 # Regional Price Differences section
+import streamlit as st
+import plotly.graph_objects as go
+
 elif section == "Regional Price Differences":
     st.header("1. How do property prices differ between the different U.S. regions?")
 
-    # Define region names
+    # Define region names and dummy columns
     region_names = ['Midwest', 'Northeast', 'South', 'West']
     region_columns = ['region_Midwest', 'region_Northeast', 'region_South', 'region_West']
 
-    # Average price by region
+    # Define color palette
+    region_colors = ['blue', 'green', 'red', 'purple']
+
+    # Calculate region-based averages
     region_avg_prices = df[region_columns].mul(df['price'], axis=0).sum() / df[region_columns].sum()
-    region_avg_prices.index = region_names
-
-    # Average population by region
     region_avg_population_2024 = df[region_columns].mul(df['population_2024'], axis=0).sum() / df[region_columns].sum()
-    region_avg_population_2024.index = region_names
-
-    # Average density by region
     region_avg_density = df[region_columns].mul(df['density'], axis=0).sum() / df[region_columns].sum()
+    region_avg_beds = df[region_columns].mul(df['bed'], axis=0).sum() / df[region_columns].sum()
+    region_avg_baths = df[region_columns].mul(df['bath'], axis=0).sum() / df[region_columns].sum()
+
+    # Set proper indices
+    region_avg_prices.index = region_names
+    region_avg_population_2024.index = region_names
     region_avg_density.index = region_names
+    region_avg_beds.index = region_names
+    region_avg_baths.index = region_names
 
-    # Plotly bar charts
-    fig_price = go.Figure(data=[
-        go.Bar(x=region_avg_prices.index, y=region_avg_prices.values, 
-               marker_color=['blue', 'green', 'red', 'purple'],
-               text=[f'{v:.4f}' for v in region_avg_prices.values],
-               textposition='outside')
-    ])
-    fig_price.update_layout(title="Average Property Price by Region", xaxis_title="Region", yaxis_title="Average Price")
+    # Function to create a bar chart
+    def create_bar_chart(title, y_vals, y_title):
+        return go.Figure(
+            data=[go.Bar(
+                x=region_names,
+                y=y_vals,
+                marker_color=region_colors,
+                text=[f'{v:.4f}' for v in y_vals],
+                textposition='outside'
+            )],
+            layout=go.Layout(
+                title=title,
+                xaxis_title="Region",
+                yaxis_title=y_title,
+                height=400
+            )
+        )
 
-    fig_population = go.Figure(data=[
-        go.Bar(x=region_avg_population_2024.index, y=region_avg_population_2024.values, 
-               marker_color=['blue', 'green', 'red', 'purple'],
-               text=[f'{v:.4f}' for v in region_avg_population_2024.values],
-               textposition='outside')
-    ])
-    fig_population.update_layout(title="Average Population in 2024 by Region", xaxis_title="Region", yaxis_title="Average Population")
-
-    fig_density = go.Figure(data=[
-        go.Bar(x=region_avg_density.index, y=region_avg_density.values, 
-               marker_color=['blue', 'green', 'red', 'purple'],
-               text=[f'{v:.4f}' for v in region_avg_density.values],
-               textposition='outside')
-    ])
-    fig_density.update_layout(title="Average Density by Region", xaxis_title="Region", yaxis_title="Average Density")
+    # Create all bar charts
+    fig_price = create_bar_chart("Average Property Price by Region", region_avg_prices.values, "Average Price")
+    fig_beds = create_bar_chart("Average Number of Bedrooms by Region", region_avg_beds.values, "Average Bedrooms")
+    fig_baths = create_bar_chart("Average Number of Bathrooms by Region", region_avg_baths.values, "Average Bathrooms")
+    fig_population = create_bar_chart("Average Population in 2024 by Region", region_avg_population_2024.values, "Average Population")
+    fig_density = create_bar_chart("Average Density by Region", region_avg_density.values, "Average Density")
 
     # Display charts
     st.plotly_chart(fig_price)
+    st.plotly_chart(fig_beds)
+    st.plotly_chart(fig_baths)
     st.plotly_chart(fig_population)
     st.plotly_chart(fig_density)
     
