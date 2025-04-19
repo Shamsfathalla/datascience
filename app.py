@@ -451,60 +451,93 @@ def load_data():
         return None
 
 # Load the data and handle UI feedback
+import streamlit as st
+import pandas as pd
+import numpy as np
+import requests, zipfile, io
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import PowerTransformer, MinMaxScaler
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# -------------------------------
+# Load Data from GitHub Zip File
+# -------------------------------
+@st.cache_data
+def load_data():
+    zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
+    try:
+        response = requests.get(zip_url)
+        response.raise_for_status()
+
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
+            csv_name = next((f for f in zip_ref.namelist() if "feature_engineered_dataset_capped_scaled.csv" in f), None)
+            if csv_name:
+                with zip_ref.open(csv_name) as csv_file:
+                    df = pd.read_csv(csv_file)
+
+                    # Map area and city types
+                    df['area_type_label'] = df['area_type'].map({0: 'Rural', 1: 'Suburban', 2: 'Urban'})
+                    df['city_type_label'] = df['city_type'].map({
+                        0: 'Town', 1: 'Small City', 2: 'Medium City', 3: 'Large City', 4: 'Metropolis'
+                    })
+                    return df
+    except Exception:
+        return None
+
 df = load_data()
+
 if df is not None:
-    st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
+    st.toast("✅ Successfully loaded dataset from GitHub")
 else:
-    st.error("Failed to load data from GitHub or CSV file not found in the zip archive")
+    st.error("❌ Failed to load dataset from GitHub or CSV not found.")
     st.stop()
 
-# House Price Predictor section
-st.header("House Price Predictor")
+# -------------------------------
+# House Price Predictor UI
+# -------------------------------
+st.header("🏠 House Price Predictor")
 st.write("""
-Predict the price of a property based on its characteristics.
-Adjust the sliders and select options to input property features and see the predicted price.
+Adjust the sliders and options to input property features and predict the property's price.
 """)
 
-# Prepare data for modeling
 features = ['bed', 'bath', 'house_size', 'acre_lot', 'city_type', 'area_type']
-
-# Debug: Check DataFrame and columns
-if df is None or df.empty:
-    st.error("Error: DataFrame is empty or failed to load. Please ensure the dataset is accessible.")
-    st.stop()
-else:
-    st.write("Available columns in DataFrame:", list(df.columns))
-    missing_features = [f for f in features if f not in df.columns]
-    if missing_features:
-        st.error(f"Error: The following features are missing in the DataFrame: {missing_features}")
-        st.stop()
-
-# Verify target column
-if 'price' not in df.columns:
-    st.error("Error: 'price' column is missing in the DataFrame.")
+if any(col not in df.columns for col in features + ['price']):
+    st.error("Some required columns are missing in the dataset.")
     st.stop()
 
-# Prepare features and target
 X = df[features]
 y = df['price']
 
-# Get original ranges for inverse transformation (approximate)
-original_price_max = 2000000  # Adjust based on original data
-original_price_min = 0        # Min price in dollars
-original_house_size_max = 10000  # Max house size in sq ft
-original_house_size_min = 100    # Min house size in sq ft
-original_acre_lot_max = 30.0     # Max acre lot in acres
-original_acre_lot_min = 0.01      # Min acre lot in acres
+# -------------------------------
+# Preprocessing Setup
+# -------------------------------
+# Define original min/max for inverse transforms
+original_price_range = (0, 2_000_000)
+original_house_size_range = (100, 10_000)
+original_acre_lot_range = (0.01, 30.0)
 
-# Fit PowerTransformer for acre_lot (since original transformer is not saved)
+# House size scaler
+house_size_log_range = np.log1p(np.array(original_house_size_range)).reshape(-1, 1)
+house_size_scaler = MinMaxScaler().fit(house_size_log_range)
+
+# Acre lot scaler and transformer
 pt_acre_lot = PowerTransformer(method='yeo-johnson', standardize=False)
-if 'acre_lot' in df.columns:
-    # Inverse MinMax scaling to get log-transformed values
-    acre_lot_scaled = df['acre_lot'].values.reshape(-1, 1)
-    acre_lot_log = np.expm1(acre_lot_scaled)  # Approximate log1p values
-    pt_acre_lot.fit(acre_lot_log)
+acre_lot_log = np.expm1(df['acre_lot'].values.reshape(-1, 1))  # approx inverse of log1p + scale
+pt_acre_lot.fit(acre_lot_log)
+acre_lot_log_range = np.log1p(np.array(original_acre_lot_range)).reshape(-1, 1)
+acre_lot_log_transformed = pt_acre_lot.transform(acre_lot_log_range)
+acre_lot_scaler = MinMaxScaler().fit(acre_lot_log_transformed)
 
-# Train a simple model (with caching)
+# Price scaler
+price_log_range = np.log1p(np.array(original_price_range)).reshape(-1, 1)
+price_scaler = MinMaxScaler().fit(price_log_range)
+
+# -------------------------------
+# Model Training
+# -------------------------------
 @st.cache_resource
 def train_model():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -514,75 +547,70 @@ def train_model():
 
 model, X_test, y_test = train_model()
 
-# Display model performance
+# -------------------------------
+# Model Evaluation
+# -------------------------------
 y_pred = model.predict(X_test)
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
+st.sidebar.markdown("### 📊 Model Performance")
+st.sidebar.write(f"**R² Score:** {r2_score(y_test, y_pred):.3f}")
+st.sidebar.write(f"**Mean Squared Error:** {mean_squared_error(y_test, y_pred):,.0f}")
 
-st.sidebar.write(f"Model Performance:")
-st.sidebar.write(f"- R² Score: {r2:.3f}")
-st.sidebar.write(f"- Mean Squared Error: {mse:,.0f}")
+# -------------------------------
+# User Input Form
+# -------------------------------
+st.subheader("Enter Property Details")
 
-# User inputs
+area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+city_type_labels = {0: 'Town', 1: 'Small City', 2: 'Medium City', 3: 'Large City', 4: 'Metropolis'}
+
 col1, col2 = st.columns(2)
 
 with col1:
-    beds = st.slider("Number of Bedrooms", min_value=1, max_value=8, value=3)
-    baths = st.slider("Number of Bathrooms", min_value=1, max_value=6, value=2)
-    house_size = st.slider("House Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
+    beds = st.slider("Bedrooms", 1, 8, 3)
+    baths = st.slider("Bathrooms", 1, 6, 2)
+    house_size = st.slider("House Size (sq ft)", 500, 10000, 2000, step=100)
 
 with col2:
-    acre_lot = st.slider("Lot Size (acres)", min_value=0.1, max_value=10.0, value=0.5, step=0.1)
-    city_type = st.selectbox("City Type", options=list(city_type_labels.values()))
-    area_type = st.selectbox("Area Type", options=list(area_type_map.values()))
+    acre_lot = st.slider("Lot Size (acres)", 0.1, 10.0, 0.5, step=0.1)
+    city_type = st.selectbox("City Type", list(city_type_labels.values()))
+    area_type = st.selectbox("Area Type", list(area_type_map.values()))
 
-# Convert city_type and area_type to numerical values
+# Convert categorical inputs
 city_type_num = [k for k, v in city_type_labels.items() if v == city_type][0]
 area_type_num = [k for k, v in area_type_map.items() if v == area_type][0]
 
-# Transform and scale user inputs
-# house_size: Apply log1p and MinMax scaling
-house_size_log = np.log1p(house_size)
-house_size_scaler = MinMaxScaler()
-house_size_log_range = np.log1p(np.array([original_house_size_min, original_house_size_max])).reshape(-1, 1)
-house_size_scaler.fit(house_size_log_range)
-house_size_scaled = house_size_scaler.transform([[house_size_log]])[0][0]
-
-# acre_lot: Apply log1p, PowerTransformer, and MinMax scaling
+# -------------------------------
+# Transform User Input
+# -------------------------------
+house_size_scaled = house_size_scaler.transform([[np.log1p(house_size)]])[0][0]
 acre_lot_log = np.log1p(acre_lot)
 acre_lot_pt = pt_acre_lot.transform([[acre_lot_log]])[0][0]
-acre_lot_scaler = MinMaxScaler()
-acre_lot_log_range = np.log1p(np.array([original_acre_lot_min, original_acre_lot_max])).reshape(-1, 1)
-acre_lot_log_transformed = pt_acre_lot.transform(acre_lot_log_range)
-acre_lot_scaler.fit(acre_lot_log_transformed)
 acre_lot_scaled = acre_lot_scaler.transform([[acre_lot_pt]])[0][0]
 
-# Make prediction
+# Final feature array
 input_data = [[beds, baths, house_size_scaled, acre_lot_scaled, city_type_num, area_type_num]]
 predicted_price_scaled = model.predict(input_data)[0]
 
-# Inverse transform predicted price
-# Step 1: Inverse MinMax scaling
-price_scaler = MinMaxScaler()
-price_log_range = np.log1p(np.array([original_price_min, original_price_max])).reshape(-1, 1)
-price_scaler.fit(price_log_range)
+# Inverse transform prediction
 predicted_price_log = price_scaler.inverse_transform([[predicted_price_scaled]])[0][0]
-
-# Step 2: Inverse log1p
 predicted_price = np.expm1(predicted_price_log)
 
-# Display prediction
-st.subheader("Prediction Result")
-st.metric(label="Predicted Property Price", value=f"${predicted_price:,.0f}")
+# -------------------------------
+# Show Prediction
+# -------------------------------
+st.subheader("💵 Predicted Price")
+st.metric("Estimated Property Price", f"${predicted_price:,.0f}")
 
-# Show feature importance
-st.subheader("Feature Importance")
-feature_importance = pd.DataFrame({
+# -------------------------------
+# Feature Importance Plot
+# -------------------------------
+st.subheader("📈 Feature Importance")
+importance_df = pd.DataFrame({
     'Feature': features,
     'Importance': model.feature_importances_
 }).sort_values('Importance', ascending=False)
 
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='Importance', y='Feature', data=feature_importance, palette='viridis', ax=ax)
-ax.set_title('Feature Importance for House Price Prediction', fontsize=16)
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.barplot(data=importance_df, x='Importance', y='Feature', palette='viridis', ax=ax)
+ax.set_title('Feature Importance', fontsize=14)
 st.pyplot(fig)
