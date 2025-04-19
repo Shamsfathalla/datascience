@@ -175,14 +175,11 @@ elif section == "Regional Price Differences":
 # Bedrooms/Bathrooms Impact section
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
-    
-          # Function to create a line plot with markers
+
+    # Function to create a line plot with markers
     def create_line_plot(x, y, data, title, x_title, y_title):
-        # Calculate average y values for each x value
         avg_data = data.groupby(x)[y].mean().reset_index()
-        
         fig = go.Figure()
-        
         fig.add_trace(go.Scatter(
             x=avg_data[x],
             y=avg_data[y],
@@ -192,57 +189,40 @@ elif section == "Bedrooms/Bathrooms Impact":
             line=dict(color='blue', width=2),
             marker=dict(size=10)
         ))
-        
         fig.update_layout(
             title=title,
             xaxis_title=x_title,
             yaxis_title=y_title,
             height=400
         )
-        
         return fig
-    
-    # Create and display the first 6 plots
-    st.header("Property Features vs Price Analysis")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        fig_bed_price = create_line_plot('bed', 'price', df, 
-                                       'Bedrooms vs Price', 
-                                       'Number of Bedrooms', 'Price')
-        st.plotly_chart(fig_bed_price, use_container_width=True)
-    
-    with col2:
-        fig_bath_price = create_line_plot('bath', 'price', df, 
-                                         'Bathrooms vs Price', 
-                                         'Number of Bathrooms', 'Price')
-        st.plotly_chart(fig_bath_price, use_container_width=True)
-    
-    col3, col4 = st.columns(2)
-    with col3:
-        fig_ratio_price = create_line_plot('bed_bath_ratio', 'price', df, 
-                                          'Bed/Bath Ratio vs Price', 
-                                          'Bed to Bath Ratio', 'Price')
-        st.plotly_chart(fig_ratio_price, use_container_width=True)
-    
-    with col4:
-        fig_price_per_bed = create_line_plot('bed', 'price_per_bed', df, 
-                                            'Price per Bed vs Bedrooms', 
-                                            'Number of Bedrooms', 'Price per Bed')
-        st.plotly_chart(fig_price_per_bed, use_container_width=True)
-    
-    col5, col6 = st.columns(2)
-    with col5:
-        fig_price_per_bath = create_line_plot('bath', 'price_per_bath', df, 
-                                             'Price per Bath vs Bathrooms', 
-                                             'Number of Bathrooms', 'Price per Bath')
-        st.plotly_chart(fig_price_per_bath, use_container_width=True)
-    
-    with col6:
-        fig_price_per_bed_bath = create_line_plot('bed_bath_ratio', 'price_per_bed_bath', df, 
-                                                 'Price per Bed & Bath vs Ratio', 
-                                                 'Bed-Bath Ratio', 'Price per Bed & Bath')
-        st.plotly_chart(fig_price_per_bed_bath, use_container_width=True)
+
+    # Dropdown to select which chart to display
+    st.subheader("Select a chart to display:")
+    plot_option = st.selectbox("Choose a feature to visualize:", [
+        "Bedrooms vs Price",
+        "Bathrooms vs Price",
+        "Bed/Bath Ratio vs Price",
+        "Price per Bed vs Bedrooms",
+        "Price per Bath vs Bathrooms",
+        "Price per Bed & Bath vs Ratio"
+    ])
+
+    # Conditional display based on selection
+    if plot_option == "Bedrooms vs Price":
+        fig = create_line_plot('bed', 'price', df, plot_option, 'Number of Bedrooms', 'Price')
+    elif plot_option == "Bathrooms vs Price":
+        fig = create_line_plot('bath', 'price', df, plot_option, 'Number of Bathrooms', 'Price')
+    elif plot_option == "Bed/Bath Ratio vs Price":
+        fig = create_line_plot('bed_bath_ratio', 'price', df, plot_option, 'Bed to Bath Ratio', 'Price')
+    elif plot_option == "Price per Bed vs Bedrooms":
+        fig = create_line_plot('bed', 'price_per_bed', df, plot_option, 'Number of Bedrooms', 'Price per Bed')
+    elif plot_option == "Price per Bath vs Bathrooms":
+        fig = create_line_plot('bath', 'price_per_bath', df, plot_option, 'Number of Bathrooms', 'Price per Bath')
+    elif plot_option == "Price per Bed & Bath vs Ratio":
+        fig = create_line_plot('bed_bath_ratio', 'price_per_bed_bath', df, plot_option, 'Bed-Bath Ratio', 'Price per Bed & Bath')
+
+    st.plotly_chart(fig, use_container_width=True)
 
     # Key insights section
     st.write("""
