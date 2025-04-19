@@ -324,7 +324,7 @@ elif section == "House Size by City Type":
             - Large City: 1,754 sq ft
             - Metropolis: 1,750 sq ft
      ### Final Answer:
-        - The trend shows that house sizes are largest in less densely populated areas (towns and small cities) and decrease as population density increases in larger cities and metropolises. This is supported by related graphs showing decreasing property sizes, lot sizes, and increasing population density in more urbanized areas.
+     - The trend shows that house sizes are largest in less densely populated areas (towns and small cities) and decrease as population density increases in larger cities and metropolises. This is supported by related graphs showing decreasing property sizes, lot sizes, and increasing population density in more urbanized areas.
     """)
 
 # Urban/Suburban/Rural Prices section
