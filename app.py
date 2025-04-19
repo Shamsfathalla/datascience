@@ -98,9 +98,6 @@ if section == "Home":
              caption="U.S. Housing Market Analysis", use_column_width=True)
 
 # Regional Price Differences section
-import streamlit as st
-import plotly.graph_objects as go
-
 elif section == "Regional Price Differences":
     st.header("1. How do property prices differ between the different U.S. regions?")
 
