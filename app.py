@@ -420,7 +420,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Mock city_type_labels and area_type_map (based on typical encoding)
-city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis"}
+city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis'}
 area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
 
 # House Price Predictor section
