@@ -16,27 +16,19 @@ st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 # Load the dataset from zip file on GitHub
 @st.cache_data
 def load_data():
-    # GitHub raw content URL for the zip file
     zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
     
     try:
-        # Download the zip file
         response = requests.get(zip_url)
         response.raise_for_status()
         
-        # Extract the zip file in memory
         with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
-            # Find our dataset file in the zip
-            csv_file_name = None
-            for file in zip_ref.namelist():
-                if "feature_engineered_dataset_capped_scaled.csv" in file:
-                    csv_file_name = file
-                    break
+            csv_file_name = next((f for f in zip_ref.namelist() if "feature_engineered_dataset_capped_scaled.csv" in f), None)
             
             if csv_file_name:
                 with zip_ref.open(csv_file_name) as csv_file:
                     df = pd.read_csv(csv_file)
-                    st.sidebar.success("Successfully loaded dataset from GitHub zip")
+                    st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
                     return df
             else:
                 st.error("CSV file not found in the zip archive")
@@ -95,7 +87,7 @@ if section == "Home":
     """)
     
     st.image("https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80", 
-             caption="U.S. Housing Market Analysis", use_column_width=True)
+             caption="U.S. Housing Market Analysis", use_container_width=True)
 
 # Regional Price Differences section
 elif section == "Regional Price Differences":
