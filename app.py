@@ -411,17 +411,10 @@ elif section == "Urban/Suburban/Rural Prices":
     """)
 
 # House Size Predictor section
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
-
-# Mock city_type_labels and area_type_map (based on typical encoding)
 city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis'}
 area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+
+df = st.session_state.get('df', pd.DataFrame())
 
 # House Price Predictor section
 st.header("House Price Predictor")
@@ -432,8 +425,24 @@ Adjust the sliders and select options to input property features and see the pre
 
 # Prepare data for modeling
 features = ['bed', 'bath', 'house_size', 'acre_lot', 'city_type', 'area_type']
-# Assuming df is the provided dataset
-df = st.session_state.get('df', pd.DataFrame())  # Replace with actual data loading if needed
+
+# Debug: Check DataFrame and columns
+if df.empty:
+    st.error("Error: DataFrame is empty. Please ensure the dataset is loaded correctly.")
+    st.stop()
+else:
+    st.write("Available columns in DataFrame:", list(df.columns))
+    missing_features = [f for f in features if f not in df.columns]
+    if missing_features:
+        st.error(f"Error: The following features are missing in the DataFrame: {missing_features}")
+        st.stop()
+
+# Verify target column
+if 'price' not in df.columns:
+    st.error("Error: 'price' column is missing in the DataFrame.")
+    st.stop()
+
+# Prepare features and target
 X = df[features]
 y = df['price']
 
