@@ -180,7 +180,7 @@ elif section == "Bedrooms/Bathrooms Impact":
     if not all(col in df.columns for col in required_cols):
         st.error("Missing columns: " + ", ".join([col for col in required_cols if col not in df.columns]))
         st.stop()
-    
+
     # Function to add text labels at line intersections
     def add_labels_to_lineplot(ax, data, x_col, y_col):
         # Get unique x values
@@ -188,13 +188,13 @@ elif section == "Bedrooms/Bathrooms Impact":
         for x in x_values:
             y = data[data[x_col] == x][y_col].mean()  # Calculate mean price for x
             ax.text(x, y, f'{y:.4f}', ha='center', va='bottom', fontsize=12)
-    
+
     # Set Seaborn style for better aesthetics
     sns.set_style("whitegrid")
     
-    # Create a figure with three subplots, stacked vertically
-    fig, axes = plt.subplots(3, 1, figsize=(10, 15), sharey=True)
-    
+    # Create a figure with three subplots
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+
     # Plot 1: Bed vs Price
     sns.lineplot(x='bed', y='price', data=df, ax=axes[0])
     add_labels_to_lineplot(axes[0], df, 'bed', 'price')
@@ -202,7 +202,7 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[0].set_xlabel('Number of Bedrooms')
     axes[0].set_ylabel('Price')
     axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
-    
+
     # Plot 2: Bath vs Price
     sns.lineplot(x='bath', y='price', data=df, ax=axes[1])
     add_labels_to_lineplot(axes[1], df, 'bath', 'price')
@@ -210,7 +210,7 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[1].set_xlabel('Number of Bathrooms')
     axes[1].set_ylabel('Price')
     axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
-    
+
     # Plot 3: Bed_Bath_Ratio vs Price
     sns.lineplot(x='bed_bath_ratio', y='price', data=df, ax=axes[2])
     add_labels_to_lineplot(axes[2], df, 'bed_bath_ratio', 'price')
@@ -219,10 +219,10 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[2].set_ylabel('Price')
     axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
     axes[2].xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.4f}'))
-    
+
     # Adjust layout to prevent overlap
     plt.tight_layout()
-    
+
     # Display the plot in Streamlit
     st.pyplot(fig)
     
