@@ -205,31 +205,6 @@ elif section == "Bedrooms/Bathrooms Impact":
                                      'Number of Bedrooms', 'Price')
     st.plotly_chart(fig_bed_price)
 
-    fig_bath_price = create_line_plot('bath', 'price', df,
-                                      'Bathrooms vs Price',
-                                      'Number of Bathrooms', 'Price')
-    st.plotly_chart(fig_bath_price)
-
-    fig_ratio_price = create_line_plot('bed_bath_ratio', 'price', df,
-                                       'Bed/Bath Ratio vs Price',
-                                       'Bed to Bath Ratio', 'Price')
-    st.plotly_chart(fig_ratio_price)
-
-    fig_price_per_bed = create_line_plot('bed', 'price_per_bed', df,
-                                         'Price per Bed vs Bedrooms',
-                                         'Number of Bedrooms', 'Price per Bed')
-    st.plotly_chart(fig_price_per_bed)
-
-    fig_price_per_bath = create_line_plot('bath', 'price_per_bath', df,
-                                          'Price per Bath vs Bathrooms',
-                                          'Number of Bathrooms', 'Price per Bath')
-    st.plotly_chart(fig_price_per_bath)
-
-    fig_price_per_bed_bath = create_line_plot('bed_bath_ratio', 'price_per_bed_bath', df,
-                                              'Price per Bed & Bath vs Ratio',
-                                              'Bed-Bath Ratio', 'Price per Bed & Bath')
-    st.plotly_chart(fig_price_per_bed_bath)
-
     # Key insights section
     st.write("""
     ### Key Insights:
