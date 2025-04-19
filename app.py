@@ -8,6 +8,7 @@ import io
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import PowerTransformer
 
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
