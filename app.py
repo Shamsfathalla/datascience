@@ -411,31 +411,50 @@ elif section == "Urban/Suburban/Rural Prices":
     """)
 
 # House Size Predictor section
-# Mock city_type_labels and area_type_map
-city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis'}
-area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
-
-# Function to download and extract dataset
+# Load the dataset from zip file on GitHub with caching
 @st.cache_data
-def load_dataset():
-    url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
+def load_data():
+    zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
+    
     try:
-        response = requests.get(url)
-        if response.status_code != 200:
-            st.error(f"Failed to download dataset. Status code: {response.status_code}")
-            return None
+        response = requests.get(zip_url)
+        response.raise_for_status()
         
-        # Extract zip file
-        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-            with z.open('feature_engineered_dataset_capped_scaled.csv') as f:
-                df = pd.read_csv(f)
-        return df
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
+            csv_file_name = next((f for f in zip_ref.namelist() if "feature_engineered_dataset_capped_scaled.csv" in f), None)
+            
+            if csv_file_name:
+                with zip_ref.open(csv_file_name) as csv_file:
+                    df = pd.read_csv(csv_file)
+                    
+                    # Mapping for readability
+                    area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+                    city_type_labels = {
+                        0: 'Town',
+                        1: 'Small City',
+                        2: 'Medium City',
+                        3: 'Large City',
+                        4: 'Metropolis'
+                    }
+
+                    # Apply readable labels
+                    df['area_type_label'] = df['area_type'].map(area_type_map)
+                    df['city_type_label'] = df['city_type'].map(city_type_labels)
+                    
+                    return df
+            else:
+                return None
+                
     except Exception as e:
-        st.error(f"Error loading dataset: {str(e)}")
         return None
 
-# Load dataset
-df = load_dataset()
+# Load the data and handle UI feedback
+df = load_data()
+if df is not None:
+    st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
+else:
+    st.error("Failed to load data from GitHub or CSV file not found in the zip archive")
+    st.stop()
 
 # House Price Predictor section
 st.header("House Price Predictor")
