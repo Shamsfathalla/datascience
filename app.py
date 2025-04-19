@@ -175,7 +175,7 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Validate required columns
+        # Validate required columns
     required_cols = ['bed', 'bath', 'bed_bath_ratio', 'price']
     if not all(col in df.columns for col in required_cols):
         st.error("Missing columns: " + ", ".join([col for col in required_cols if col not in df.columns]))
@@ -192,9 +192,9 @@ elif section == "Bedrooms/Bathrooms Impact":
     # Set Seaborn style for better aesthetics
     sns.set_style("whitegrid")
     
-    # Create a figure with three subplots
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
-
+    # Create a figure with three subplots in vertical arrangement
+    fig, axes = plt.subplots(3, 1, figsize=(10, 15))  # Changed to 3 rows, 1 column
+    
     # Plot 1: Bed vs Price
     sns.lineplot(x='bed', y='price', data=df, ax=axes[0])
     add_labels_to_lineplot(axes[0], df, 'bed', 'price')
