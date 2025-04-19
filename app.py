@@ -14,10 +14,8 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 
 # Load the dataset from zip file on GitHub
-@st.cache_data
 def load_data():
     zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
-    return df
     
     try:
         response = requests.get(zip_url)
