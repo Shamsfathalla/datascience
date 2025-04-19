@@ -195,7 +195,7 @@ elif section == "Bedrooms/Bathrooms Impact":
     # Create a figure with three subplots in vertical arrangement
     fig, axes = plt.subplots(3, 1, figsize=(10, 15))  # 3 rows, 1 column
     
-    # Plot 1: Bed vs Price - Added marker='o' for circles
+    # Plot 1: Bed vs Price - All using circle markers now
     sns.lineplot(x='bed', y='price', data=df, ax=axes[0], marker='o', markersize=8)
     add_labels_to_lineplot(axes[0], df, 'bed', 'price')
     axes[0].set_title('Bedrooms vs Price')
@@ -203,16 +203,16 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[0].set_ylabel('Price')
     axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
     
-    # Plot 2: Bath vs Price - Added marker='s' for squares
-    sns.lineplot(x='bath', y='price', data=df, ax=axes[1], marker='s', markersize=8)
+    # Plot 2: Bath vs Price - Changed to circles
+    sns.lineplot(x='bath', y='price', data=df, ax=axes[1], marker='o', markersize=8)
     add_labels_to_lineplot(axes[1], df, 'bath', 'price')
     axes[1].set_title('Bathrooms vs Price')
     axes[1].set_xlabel('Number of Bathrooms')
     axes[1].set_ylabel('Price')
     axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
     
-    # Plot 3: Bed_Bath_Ratio vs Price - Added marker='D' for diamonds
-    sns.lineplot(x='bed_bath_ratio', y='price', data=df, ax=axes[2], marker='D', markersize=8)
+    # Plot 3: Bed_Bath_Ratio vs Price - Changed to circles
+    sns.lineplot(x='bed_bath_ratio', y='price', data=df, ax=axes[2], marker='o', markersize=8)
     add_labels_to_lineplot(axes[2], df, 'bed_bath_ratio', 'price')
     axes[2].set_title('Bed/Bath Ratio vs Price')
     axes[2].set_xlabel('Bed to Bath Ratio')
