@@ -149,10 +149,10 @@ elif section == "Regional Price Differences":
 
     # Display charts
     st.plotly_chart(fig_price)
-    st.plotly_chart(fig_beds)
-    st.plotly_chart(fig_baths)
     st.plotly_chart(fig_population)
     st.plotly_chart(fig_density)
+    st.plotly_chart(fig_beds)
+    st.plotly_chart(fig_baths)
     
     st.write("""
     ### Key Insights:
