@@ -242,7 +242,7 @@ elif section == "Bedrooms/Bathrooms Impact":
 # House Size by City Type section
 elif section == "House Size by City Type":
     st.header("3. What is the average house size per city types in the U.S.?")
-    
+
     # Map area_type and city_type labels
     area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
     city_type_labels = {
@@ -256,57 +256,51 @@ elif section == "House Size by City Type":
     df['area_type_label'] = df['area_type'].map(area_type_map)
     df['city_type_label'] = df['city_type'].map(city_type_labels)
     
-    # Create vertical subplots (3 rows, 1 column)
+    # Create figure with vertical subplots
     fig, axes = plt.subplots(3, 1, figsize=(12, 18))
-    plt.subplots_adjust(hspace=0.4)  # Adjust vertical spacing
     
-    # Plot 1: Average House Size by City Type
+    # Plot 1: Average House Size by City Type (Line plot)
     avg_house_size_city_type = df.groupby('city_type')['house_size'].mean().reset_index()
     avg_house_size_city_type['city_type_label'] = avg_house_size_city_type['city_type'].map(city_type_labels)
     
-    sns.lineplot(x='city_type_label', y='house_size', data=avg_house_size_city_type, 
-                 marker='o', markersize=8, ax=axes[0])
-    axes[0].set_title('Average House Size by City Type', fontsize=14)
-    axes[0].set_xlabel('City Type', fontsize=12)
-    axes[0].set_ylabel('Average House Size (sq ft)', fontsize=12)
-    axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    sns.lineplot(x='city_type_label', y='house_size', data=avg_house_size_city_type, marker='o', ax=axes[0])
+    axes[0].set_title('Average House Size by City Type')
+    axes[0].set_xlabel('City Type')
+    axes[0].set_ylabel('Average House Size (sq ft)')
     
+    # Add exact values to each point
     for i, row in avg_house_size_city_type.iterrows():
-        axes[0].text(i, row['house_size'], f"{row['house_size']:,.0f}", 
-                    ha='center', va='bottom', fontsize=12)
+        axes[0].text(i, row['house_size'], f"{row['house_size']:.4f}", ha='center', va='bottom', fontsize=10)
     
-    # Plot 2: Average Property Size by City Type
+    # Plot 2: Average Property Size by City Type (Line plot)
     avg_size_city_type = df.groupby('city_type')['property_size'].mean().reset_index()
     avg_size_city_type['city_type_label'] = avg_size_city_type['city_type'].map(city_type_labels)
     
-    sns.lineplot(x='city_type_label', y='property_size', data=avg_size_city_type, 
-                 marker='o', markersize=8, ax=axes[1])
-    axes[1].set_title("Average Property Size by City Type", fontsize=14)
-    axes[1].set_xlabel("City Type", fontsize=12)
-    axes[1].set_ylabel("Average Property Size (sq ft)", fontsize=12)
-    axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    sns.lineplot(x='city_type_label', y='property_size', data=avg_size_city_type, marker='o', ax=axes[1])
+    axes[1].set_title("Average Property Size by City Type")
+    axes[1].set_xlabel("City Type")
+    axes[1].set_ylabel("Average Property Size")
     
+    # Add exact values to each point
     for i, row in avg_size_city_type.iterrows():
-        axes[1].text(i, row['property_size'], f"{row['property_size']:,.0f}", 
-                    ha='center', va='bottom', fontsize=12)
+        axes[1].text(i, row['property_size'], f"{row['property_size']:.4f}", ha='center', va='bottom', fontsize=10)
     
-    # Plot 3: Average Acre Lot by City Type
+    # Plot 3: Average Acre Lot by City Type (Line plot)
     avg_acre_lot_city_type = df.groupby('city_type')['acre_lot'].mean().reset_index()
     avg_acre_lot_city_type['city_type_label'] = avg_acre_lot_city_type['city_type'].map(city_type_labels)
     
-    sns.lineplot(x='city_type_label', y='acre_lot', data=avg_acre_lot_city_type, 
-                 marker='o', markersize=8, ax=axes[2])
-    axes[2].set_title('Average Acre Lot by City Type', fontsize=14)
-    axes[2].set_xlabel('City Type', fontsize=12)
-    axes[2].set_ylabel('Average Acre Lot (acres)', fontsize=12)
-    axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))
+    sns.lineplot(x='city_type_label', y='acre_lot', data=avg_acre_lot_city_type, marker='o', ax=axes[2])
+    axes[2].set_title('Average Acre Lot by City Type')
+    axes[2].set_xlabel('City Type')
+    axes[2].set_ylabel('Average Acre Lot (acres)')
     
+    # Add exact values to each point
     for i, row in avg_acre_lot_city_type.iterrows():
-        axes[2].text(i, row['acre_lot'], f"{row['acre_lot']:,.2f}", 
-                    ha='center', va='bottom', fontsize=12)
+        axes[2].text(i, row['acre_lot'], f"{row['acre_lot']:.4f}", ha='center', va='bottom', fontsize=10)
     
-    # Display the plot in Streamlit
-    st.pyplot(fig)   
+    # Adjust layout and display in Streamlit
+    plt.tight_layout()
+    st.pyplot(fig) 
     
     st.write("""
     ### Key Insights:
