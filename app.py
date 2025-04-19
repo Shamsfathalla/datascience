@@ -2,13 +2,15 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 import requests
 import zipfile
 import io
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+
+# Set page config MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 
 # Load the dataset from zip file on GitHub
 @st.cache_data
@@ -43,6 +45,7 @@ def load_data():
         st.error(f"Failed to load data from GitHub: {str(e)}")
         return None
 
+# Load the data
 df = load_data()
 
 if df is None:
@@ -62,9 +65,6 @@ city_type_labels = {
 # Apply readable labels
 df['area_type_label'] = df['area_type'].map(area_type_map)
 df['city_type_label'] = df['city_type'].map(city_type_labels)
-
-# Set page config
-st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 
 # Title
 st.title("U.S. Housing Market Analysis")
@@ -165,7 +165,6 @@ elif section == "Bedrooms/Bathrooms Impact":
         - 2 to 3 bedrooms
         - 1 to 2 bathrooms
     - Homes with 5+ bedrooms or 4+ bathrooms show more variability in pricing
-    - This suggests that while more rooms generally means higher prices, other factors become more important for larger homes
     """)
 
 # House Size by City Type section
@@ -195,8 +194,7 @@ elif section == "House Size by City Type":
     - **Towns** have the largest average house sizes
     - House sizes generally decrease as city size increases
     - **Metropolises** have the smallest average house sizes
-    - This pattern reflects the land availability and density differences between small towns and large cities
-    - The difference between Towns and Metropolises is about 30-40% in average size
+    - This pattern reflects the land availability and density differences
     """)
 
 # Urban/Suburban/Rural Prices section
@@ -225,8 +223,7 @@ elif section == "Urban/Suburban/Rural Prices":
     - **Urban** areas have the highest average property prices
     - **Suburban** areas follow urban areas in pricing
     - **Rural** areas have the lowest average prices
-    - The urban premium is significant, reflecting higher demand and limited space in cities
-    - Suburban areas offer a middle ground between urban convenience and rural space
+    - The urban premium reflects higher demand and limited space in cities
     """)
 
 # House Size Predictor section
