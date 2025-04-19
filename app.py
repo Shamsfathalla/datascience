@@ -100,83 +100,31 @@ if section == "Home":
 elif section == "Regional Price Differences":
     st.header("1. How do property prices differ between the different U.S. regions?")
     
-    # Define region columns
+    # Calculate average prices by region
     region_columns = ['region_Midwest', 'region_Northeast', 'region_South', 'region_West']
-
-    # Calculate region-wise averages
     region_avg_prices = df[region_columns].mul(df['price'], axis=0).sum() / df[region_columns].sum()
     region_avg_prices.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    region_avg_property_size = df[region_columns].mul(df['property_size'], axis=0).sum() / df[region_columns].sum()
-    region_avg_property_size.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    region_avg_beds = df[region_columns].mul(df['bed'], axis=0).sum() / df[region_columns].sum()
-    region_avg_beds.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    region_avg_baths = df[region_columns].mul(df['bath'], axis=0).sum() / df[region_columns].sum()
-    region_avg_baths.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    region_avg_population_2024 = df[region_columns].mul(df['population_2024'], axis=0).sum() / df[region_columns].sum()
-    region_avg_population_2024.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    region_avg_density = df[region_columns].mul(df['density'], axis=0).sum() / df[region_columns].sum()
-    region_avg_density.index = ['Midwest', 'Northeast', 'South', 'West']
-
-    # Create grid of bar charts
-    fig, axes = plt.subplots(3, 2, figsize=(14, 12))
-    palette = ['blue', 'green', 'red', 'purple']
-
-    # Bar 1: Price
-    axes[0, 0].bar(region_avg_prices.index, region_avg_prices.values, color=palette)
-    axes[0, 0].set_title("Average Property Price by Region")
-    axes[0, 0].set_ylabel("Average Price")
+    
+    # Create visualization
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=region_avg_prices.index, y=region_avg_prices.values, 
+                palette=['blue', 'green', 'red', 'purple'], ax=ax)
+    ax.set_title("Average Property Price by Region", fontsize=16)
+    ax.set_xlabel("Region", fontsize=14)
+    ax.set_ylabel("Average Price", fontsize=14)
+    
+    # Add value labels with 4 decimal places (no rounding)
     for i, value in enumerate(region_avg_prices.values):
-        axes[0, 0].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    # Bar 2: Property Size
-    axes[0, 1].bar(region_avg_property_size.index, region_avg_property_size.values, color=palette)
-    axes[0, 1].set_title("Average Property Size by Region")
-    axes[0, 1].set_ylabel("Average Property Size")
-    for i, value in enumerate(region_avg_property_size.values):
-        axes[0, 1].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    # Bar 3: Beds
-    axes[1, 0].bar(region_avg_beds.index, region_avg_beds.values, color=palette)
-    axes[1, 0].set_title("Average Number of Bedrooms by Region")
-    axes[1, 0].set_ylabel("Average Number of Bedrooms")
-    for i, value in enumerate(region_avg_beds.values):
-        axes[1, 0].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    # Bar 4: Baths
-    axes[1, 1].bar(region_avg_baths.index, region_avg_baths.values, color=palette)
-    axes[1, 1].set_title("Average Number of Bathrooms by Region")
-    axes[1, 1].set_ylabel("Average Number of Bathrooms")
-    for i, value in enumerate(region_avg_baths.values):
-        axes[1, 1].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    # Bar 5: Population
-    axes[2, 0].bar(region_avg_population_2024.index, region_avg_population_2024.values, color=palette)
-    axes[2, 0].set_title("Average Population in 2024 by Region")
-    axes[2, 0].set_ylabel("Average Population")
-    for i, value in enumerate(region_avg_population_2024.values):
-        axes[2, 0].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    # Bar 6: Density
-    axes[2, 1].bar(region_avg_density.index, region_avg_density.values, color=palette)
-    axes[2, 1].set_title("Average Density by Region")
-    axes[2, 1].set_ylabel("Average Density")
-    for i, value in enumerate(region_avg_density.values):
-        axes[2, 1].text(i, value, f'{value:.4f}', ha='center', va='bottom')
-
-    plt.tight_layout()
+        ax.text(i, value, f'{value:.4f}', ha='center', va='bottom', fontsize=12)
+    
     st.pyplot(fig)
-
+    
     st.write("""
     ### Key Insights:
-    - The **Northeast** region has the highest average property prices and population density.
-    - The **West** follows closely in price but has relatively lower density.
-    - The **Midwest** and **South** are more affordable and spacious, with larger average property sizes and more bedrooms/bathrooms.
-    - These differences highlight regional contrasts in real estate value, home characteristics, and urbanization levels.
+    - The **Northeast** region has the highest average property prices
+    - The **West** follows closely behind the Northeast
+    - The **Midwest** and **South** regions have significantly lower average prices
+    - This pattern reflects the general cost of living differences across U.S. regions
     """)
 
 # Bedrooms/Bathrooms Impact section
