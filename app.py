@@ -243,7 +243,7 @@ elif section == "Bedrooms/Bathrooms Impact":
 elif section == "House Size by City Type":
     st.header("3. What is the average house size per city types in the U.S.?")
     
-        # Map area_type and city_type labels
+    # Map area_type and city_type labels
     area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
     city_type_labels = {
         0: 'Town',
@@ -256,57 +256,57 @@ elif section == "House Size by City Type":
     df['area_type_label'] = df['area_type'].map(area_type_map)
     df['city_type_label'] = df['city_type'].map(city_type_labels)
     
-    # Create subplots (4 rows, 3 columns) to adjust the layout with the new metrics
-    fig, axes = plt.subplots(4, 3, figsize=(20, 30))
-    plt.subplots_adjust(hspace=0.4, wspace=0.3)  # Adjust spacing between subplots
+    # Create vertical subplots (3 rows, 1 column)
+    fig, axes = plt.subplots(3, 1, figsize=(12, 18))
+    plt.subplots_adjust(hspace=0.4)  # Adjust vertical spacing
     
-    # Plot 1: Average House Size by City Type (Line plot)
+    # Plot 1: Average House Size by City Type
     avg_house_size_city_type = df.groupby('city_type')['house_size'].mean().reset_index()
     avg_house_size_city_type['city_type_label'] = avg_house_size_city_type['city_type'].map(city_type_labels)
     
     sns.lineplot(x='city_type_label', y='house_size', data=avg_house_size_city_type, 
-                 marker='o', markersize=8, ax=axes[0, 0])
-    axes[0, 0].set_title('Average House Size by City Type', fontsize=14)
-    axes[0, 0].set_xlabel('City Type', fontsize=12)
-    axes[0, 0].set_ylabel('Average House Size (sq ft)', fontsize=12)
-    axes[0, 0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+                 marker='o', markersize=8, ax=axes[0])
+    axes[0].set_title('Average House Size by City Type', fontsize=14)
+    axes[0].set_xlabel('City Type', fontsize=12)
+    axes[0].set_ylabel('Average House Size (sq ft)', fontsize=12)
+    axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
     
     for i, row in avg_house_size_city_type.iterrows():
-        axes[0, 0].text(i, row['house_size'], f"{row['house_size']:,.0f}", 
-                       ha='center', va='bottom', fontsize=12)
+        axes[0].text(i, row['house_size'], f"{row['house_size']:,.0f}", 
+                    ha='center', va='bottom', fontsize=12)
     
-    # Plot 2: Average Property Size by City Type (Line plot)
+    # Plot 2: Average Property Size by City Type
     avg_size_city_type = df.groupby('city_type')['property_size'].mean().reset_index()
     avg_size_city_type['city_type_label'] = avg_size_city_type['city_type'].map(city_type_labels)
     
     sns.lineplot(x='city_type_label', y='property_size', data=avg_size_city_type, 
-                 marker='o', markersize=8, ax=axes[0, 1])
-    axes[0, 1].set_title("Average Property Size by City Type", fontsize=14)
-    axes[0, 1].set_xlabel("City Type", fontsize=12)
-    axes[0, 1].set_ylabel("Average Property Size (sq ft)", fontsize=12)
-    axes[0, 1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+                 marker='o', markersize=8, ax=axes[1])
+    axes[1].set_title("Average Property Size by City Type", fontsize=14)
+    axes[1].set_xlabel("City Type", fontsize=12)
+    axes[1].set_ylabel("Average Property Size (sq ft)", fontsize=12)
+    axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
     
     for i, row in avg_size_city_type.iterrows():
-        axes[0, 1].text(i, row['property_size'], f"{row['property_size']:,.0f}", 
-                       ha='center', va='bottom', fontsize=12)
+        axes[1].text(i, row['property_size'], f"{row['property_size']:,.0f}", 
+                    ha='center', va='bottom', fontsize=12)
     
-    # Plot 3: Average Acre Lot by City Type (Line plot)
+    # Plot 3: Average Acre Lot by City Type
     avg_acre_lot_city_type = df.groupby('city_type')['acre_lot'].mean().reset_index()
     avg_acre_lot_city_type['city_type_label'] = avg_acre_lot_city_type['city_type'].map(city_type_labels)
     
     sns.lineplot(x='city_type_label', y='acre_lot', data=avg_acre_lot_city_type, 
-                 marker='o', markersize=8, ax=axes[0, 2])
-    axes[0, 2].set_title('Average Acre Lot by City Type', fontsize=14)
-    axes[0, 2].set_xlabel('City Type', fontsize=12)
-    axes[0, 2].set_ylabel('Average Acre Lot (acres)', fontsize=12)
-    axes[0, 2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))
+                 marker='o', markersize=8, ax=axes[2])
+    axes[2].set_title('Average Acre Lot by City Type', fontsize=14)
+    axes[2].set_xlabel('City Type', fontsize=12)
+    axes[2].set_ylabel('Average Acre Lot (acres)', fontsize=12)
+    axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))
     
     for i, row in avg_acre_lot_city_type.iterrows():
-        axes[0, 2].text(i, row['acre_lot'], f"{row['acre_lot']:,.2f}", 
-                       ha='center', va='bottom', fontsize=12)
+        axes[2].text(i, row['acre_lot'], f"{row['acre_lot']:,.2f}", 
+                    ha='center', va='bottom', fontsize=12)
     
     # Display the plot in Streamlit
-    st.pyplot(fig)
+    st.pyplot(fig)   
     
     st.write("""
     ### Key Insights:
@@ -330,7 +330,7 @@ elif section == "House Size by City Type":
             - Large City: 1,754 sq ft
             - Metropolis: 1,750 sq ft
     ### Final Answer:
-        -The trend shows that house sizes are largest in less densely populated areas (towns and small cities) and decrease as population density increases in larger cities and metropolises. This is supported by related graphs showing decreasing property sizes, lot sizes, and increasing population density in more urbanized areas.
+        - The trend shows that house sizes are largest in less densely populated areas (towns and small cities) and decrease as population density increases in larger cities and metropolises. This is supported by related graphs showing decreasing property sizes, lot sizes, and increasing population density in more urbanized areas.
     """)
 
 # Urban/Suburban/Rural Prices section
