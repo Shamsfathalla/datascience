@@ -176,113 +176,104 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
     
-    # Calculate necessary metrics
-    df['bed_bath_ratio'] = df['bed'] / df['bath']
-    df['price_per_bed'] = df['price'] / df['bed']
-    df['price_per_bath'] = df['price'] / df['bath']
-    df['price_per_bed_bath'] = df['price'] / (df['bed'] + df['bath'])
-
-    # First row - Basic relationships
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig = px.scatter(df, x='bed', y='price', trendline="lowess",
-                       title='Bedrooms vs Price',
-                       labels={'bed': 'Number of Bedrooms', 'price': 'Price ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col2:
-        fig = px.scatter(df, x='bath', y='price', trendline="lowess",
-                       title='Bathrooms vs Price',
-                       labels={'bath': 'Number of Bathrooms', 'price': 'Price ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Second row - More relationships
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig = px.scatter(df, x='bed_bath_ratio', y='price', trendline="lowess",
-                       title='Bed/Bath Ratio vs Price',
-                       labels={'bed_bath_ratio': 'Bed to Bath Ratio', 'price': 'Price ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col2:
-        fig = px.scatter_3d(df, x='bed', y='bath', z='price',
-                           title='Price vs Bedrooms and Bathrooms',
-                           labels={'bed': 'Bedrooms', 'bath': 'Bathrooms', 'price': 'Price ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Third row - Price per unit metrics
-    st.subheader("Price per Unit Analysis")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig = px.scatter(df, x='bed', y='price_per_bed', trendline="lowess",
-                       title='Price per Bedroom',
-                       labels={'bed': 'Number of Bedrooms', 'price_per_bed': 'Price per Bed ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col2:
-        fig = px.scatter(df, x='bath', y='price_per_bath', trendline="lowess",
-                       title='Price per Bathroom',
-                       labels={'bath': 'Number of Bathrooms', 'price_per_bath': 'Price per Bath ($)'})
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Fourth row - Combined price per bed+bath
-    fig = px.scatter(df, x='bed_bath_ratio', y='price_per_bed_bath', trendline="lowess",
-                   title='Price per (Bed + Bath) vs Bed/Bath Ratio',
-                   labels={'bed_bath_ratio': 'Bed-Bath Ratio', 'price_per_bed_bath': 'Price per (Bed+Bath) ($)'},
-                   width=1000)
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Location-based analysis
-    st.subheader("Location-Based Patterns")
+       # Define mappings
+    city_type_labels = {0: 'Town', 1: 'Small City', 2: 'Medium City', 3: 'Large City', 4: 'Metropolis'}
+    area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
     
     # Calculate averages
-    avg_bed_per_city_type = df.groupby('city_type_label')[['bed', 'bath', 'bed_bath_ratio']].mean().reset_index()
-    avg_bed_per_area_type = df.groupby('area_type_label')[['bed', 'bath', 'bed_bath_ratio']].mean().reset_index()
-
-    # City type analysis
-    col1, col2, col3 = st.columns(3)
+    avg_bed_per_city_type = df.groupby('city_type')['bed'].mean().reset_index()
+    avg_bath_per_city_type = df.groupby('city_type')['bath'].mean().reset_index()
+    avg_bed_bath_ratio_per_city_type = df.groupby('city_type')['bed_bath_ratio'].mean().reset_index()
     
-    with col1:
-        fig = px.bar(avg_bed_per_city_type, x='city_type_label', y='bed',
-                    title='Avg Bedrooms by City Type',
-                    labels={'city_type_label': 'City Type', 'bed': 'Avg Bedrooms'})
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col2:
-        fig = px.bar(avg_bed_per_city_type, x='city_type_label', y='bath',
-                    title='Avg Bathrooms by City Type',
-                    labels={'city_type_label': 'City Type', 'bath': 'Avg Bathrooms'})
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col3:
-        fig = px.bar(avg_bed_per_city_type, x='city_type_label', y='bed_bath_ratio',
-                    title='Avg Bed/Bath Ratio by City Type',
-                    labels={'city_type_label': 'City Type', 'bed_bath_ratio': 'Avg Ratio'})
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Area type analysis
-    col1, col2, col3 = st.columns(3)
+    avg_bed_per_area_type = df.groupby('area_type')['bed'].mean().reset_index()
+    avg_bath_per_area_type = df.groupby('area_type')['bath'].mean().reset_index()
+    avg_bed_bath_ratio_per_area_type = df.groupby('area_type')['bed_bath_ratio'].mean().reset_index()
     
-    with col1:
-        fig = px.bar(avg_bed_per_area_type, x='area_type_label', y='bed',
-                    title='Avg Bedrooms by Area Type',
-                    labels={'area_type_label': 'Area Type', 'bed': 'Avg Bedrooms'})
-        st.plotly_chart(fig, use_container_width=True)
+    # Function to create a line plot with markers
+    def create_line_plot(x, y, data, title, x_title, y_title, xtick_labels=None):
+        fig = go.Figure()
         
-    with col2:
-        fig = px.bar(avg_bed_per_area_type, x='area_type_label', y='bath',
-                    title='Avg Bathrooms by Area Type',
-                    labels={'area_type_label': 'Area Type', 'bath': 'Avg Bathrooms'})
-        st.plotly_chart(fig, use_container_width=True)
+        fig.add_trace(go.Scatter(
+            x=data[x],
+            y=data[y],
+            mode='lines+markers+text',
+            text=[f'{v:.4f}' for v in data[y]],
+            textposition='top center',
+            line=dict(color='blue', width=2),
+            marker=dict(size=10)
+        )
         
-    with col3:
-        fig = px.bar(avg_bed_per_area_type, x='area_type_label', y='bed_bath_ratio',
-                    title='Avg Bed/Bath Ratio by Area Type',
-                    labels={'area_type_label': 'Area Type', 'bed_bath_ratio': 'Avg Ratio'})
-        st.plotly_chart(fig, use_container_width=True)
+        if xtick_labels:
+            fig.update_xaxes(
+                tickvals=list(xtick_labels.keys()),
+                ticktext=list(xtick_labels.values())
+            )
+        
+        fig.update_layout(
+            title=title,
+            xaxis_title=x_title,
+            yaxis_title=y_title,
+            height=400
+        )
+        
+        return fig
+    
+    # Create all plots
+    # Bed vs Price
+    fig_bed_price = create_line_plot('bed', 'price', df, 'Bedrooms vs Price', 'Number of Bedrooms', 'Price')
+    st.plotly_chart(fig_bed_price)
+    
+    # Bath vs Price
+    fig_bath_price = create_line_plot('bath', 'price', df, 'Bathrooms vs Price', 'Number of Bathrooms', 'Price')
+    st.plotly_chart(fig_bath_price)
+    
+    # Bed/Bath Ratio vs Price
+    fig_ratio_price = create_line_plot('bed_bath_ratio', 'price', df, 'Bed/Bath Ratio vs Price', 'Bed to Bath Ratio', 'Price')
+    st.plotly_chart(fig_ratio_price)
+    
+    # Price per Bed vs Bedrooms
+    fig_price_per_bed = create_line_plot('bed', 'price_per_bed', df, 'Price per Bed vs. Number of Bedrooms', 'Number of Bedrooms', 'Price per Bed')
+    st.plotly_chart(fig_price_per_bed)
+    
+    # Price per Bath vs Bathrooms
+    fig_price_per_bath = create_line_plot('bath', 'price_per_bath', df, 'Price per Bath vs. Number of Bathrooms', 'Number of Bathrooms', 'Price per Bath')
+    st.plotly_chart(fig_price_per_bath)
+    
+    # Price per Bed & Bath vs Ratio
+    fig_price_per_bed_bath = create_line_plot('bed_bath_ratio', 'price_per_bed_bath', df, 'Price per Bed & Bath vs. Bed-Bath Ratio', 'Bed-Bath Ratio', 'Price per Bed & Bath')
+    st.plotly_chart(fig_price_per_bed_bath)
+    
+    # City Type Plots
+    fig_bed_city = create_line_plot('city_type', 'bed', avg_bed_per_city_type, 
+                                   'Average Bedrooms per City Type', 'City Type', 'Average Bedrooms',
+                                   city_type_labels)
+    st.plotly_chart(fig_bed_city)
+    
+    fig_bath_city = create_line_plot('city_type', 'bath', avg_bath_per_city_type, 
+                                    'Average Bathrooms per City Type', 'City Type', 'Average Bathrooms',
+                                    city_type_labels)
+    st.plotly_chart(fig_bath_city)
+    
+    fig_ratio_city = create_line_plot('city_type', 'bed_bath_ratio', avg_bed_bath_ratio_per_city_type, 
+                                     'Average Bed/Bath Ratio per City Type', 'City Type', 'Average Bed/Bath Ratio',
+                                     city_type_labels)
+    st.plotly_chart(fig_ratio_city)
+    
+    # Area Type Plots
+    fig_bed_area = create_line_plot('area_type', 'bed', avg_bed_per_area_type, 
+                                   'Average Bedrooms per Area Type', 'Area Type', 'Average Bedrooms',
+                                   area_type_map)
+    st.plotly_chart(fig_bed_area)
+    
+    fig_bath_area = create_line_plot('area_type', 'bath', avg_bath_per_area_type, 
+                                    'Average Bathrooms per Area Type', 'Area Type', 'Average Bathrooms',
+                                    area_type_map)
+    st.plotly_chart(fig_bath_area)
+    
+    fig_ratio_area = create_line_plot('area_type', 'bed_bath_ratio', avg_bed_bath_ratio_per_area_type, 
+                                     'Average Bed/Bath Ratio per Area Type', 'Area Type', 'Average Bed/Bath Ratio',
+                                     area_type_map)
+    st.plotly_chart(fig_ratio_area)
 
     # Key insights section
     st.write("""
