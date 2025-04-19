@@ -418,7 +418,7 @@ area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
 # Function to download and extract dataset
 @st.cache_data
 def load_dataset():
-    url = "https://github.com/Shamsfathalla/datascience/blob/c0597b32d9034e6732b2c488f6ed4f2c3515e1a6/datasets.zip"
+    url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
     try:
         response = requests.get(url)
         if response.status_code != 200:
