@@ -330,30 +330,84 @@ elif section == "House Size by City Type":
 # Urban/Suburban/Rural Prices section
 elif section == "Urban/Suburban/Rural Prices":
     st.header("4. How do prices fluctuate between urban, suburban and rural cities?")
+
+    # Mapping for readability
+    area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+    city_type_labels = {
+        0: 'Town',
+        1: 'Small City',
+        2: 'Medium City',
+        3: 'Large City',
+        4: 'Metropolis'
+    }
     
-    # Calculate average price by area type
-    avg_price_area = df.groupby('area_type_label')['price'].mean().reset_index()
+    # Apply readable labels
+    df['area_type_label'] = df['area_type'].map(area_type_map)
+    df['city_type_label'] = df['city_type'].map(city_type_labels)
     
-    # Create visualization
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='area_type_label', y='price', data=avg_price_area, 
-                palette='rocket', order=['Rural', 'Suburban', 'Urban'], ax=ax)
-    ax.set_title('Average Property Price by Area Type', fontsize=16)
-    ax.set_xlabel('Area Type', fontsize=14)
-    ax.set_ylabel('Average Price', fontsize=14)
+    # Convert city_type_label to a categorical data type with the specified order
+    city_type_order = ['Town', 'Small City', 'Medium City', 'Large City', 'Metropolis']
+    df['city_type_label'] = pd.Categorical(df['city_type_label'], categories=city_type_order, ordered=True)
     
-    # Add value labels
-    for i, row in avg_price_area.iterrows():
-        ax.text(i, row['price'], f"${row['price']:,.0f}", ha='center', va='bottom', fontsize=12)
+    # Calculate the necessary statistics
+    avg_price = df.groupby('area_type_label')['price'].mean().reset_index()
+    avg_property_size = df.groupby('area_type_label')['property_size'].mean().reset_index()
+    avg_pop = df.groupby('area_type_label')['population_2024'].mean().reset_index()
+    avg_density = df.groupby('area_type_label')['density'].mean().reset_index()
     
-    st.pyplot(fig)
+    # Create plots vertically
+    st.title("Property Statistics by Area Type")
+    
+    # Plot 1: Average Property Price by Area Type
+    st.subheader("Average Property Price by Area Type")
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=avg_price, x='area_type_label', y='price', marker='o', ax=ax1)
+    for i, row in avg_price.iterrows():
+        ax1.text(row['area_type_label'], row['price'], f"{row['price']:.4f}", fontsize=12, ha='center', va='bottom')
+    ax1.set_xlabel("Area Type")
+    ax1.set_ylabel("Average Price")
+    st.pyplot(fig1)
+    
+    # Plot 2: Average Property Size by Area Type
+    st.subheader("Average Property Size by Area Type")
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=avg_property_size, x='area_type_label', y='property_size', marker='o', ax=ax2)
+    for i, row in avg_property_size.iterrows():
+        ax2.text(row['area_type_label'], row['property_size'], f"{row['property_size']:.4f}", fontsize=12, ha='center', va='bottom')
+    ax2.set_xlabel("Area Type")
+    ax2.set_ylabel("Average Property Size")
+    st.pyplot(fig2)
+    
+    # Plot 3: Average Population (2024) by Area Type
+    st.subheader("Average Population (2024) by Area Type")
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=avg_pop, x='area_type_label', y='population_2024', marker='o', ax=ax3)
+    for i, row in avg_pop.iterrows():
+        ax3.text(row['area_type_label'], row['population_2024'], f"{row['population_2024']:.4f}", fontsize=12, ha='center', va='bottom')
+    ax3.set_xlabel("Area Type")
+    ax3.set_ylabel("Average Population")
+    st.pyplot(fig3)
+    
+    # Plot 4: Average Population Density by Area Type
+    st.subheader("Average Population Density by Area Type")
+    fig4, ax4 = plt.subplots(figsize=(10, 6))
+    sns.lineplot(data=avg_density, x='area_type_label', y='density', marker='o', ax=ax4)
+    for i, row in avg_density.iterrows():
+        ax4.text(row['area_type_label'], row['density'], f"{row['density']:.4f}", fontsize=12, ha='center', va='bottom')
+    ax4.set_xlabel("Area Type")
+    ax4.set_ylabel("Average Density")
+    st.pyplot(fig4)
     
     st.write("""
     ### Key Insights:
-    - **Urban** areas have the highest average property prices
-    - **Suburban** areas follow urban areas in pricing
-    - **Rural** areas have the lowest average prices
-    - The urban premium reflects higher demand and limited space in cities
+    - The graphs show a clear trend in property prices across urban, suburban, and rural areas:
+        - Urban areas have the highest property prices due to high population density, limited space, and high demand.
+        - Suburban areas have intermediate property prices, offering a balance between affordability and access to amenities like more bedrooms and bathrooms.
+        - Rural areas have the lowest property prices, characterized by larger properties and lot sizes but fewer amenities.
+    - In summary, property prices fluctuate based on factors such as population density, property size, lot size, and the number of amenities (bedrooms and bathrooms). Urban areas command the highest prices due to high demand and limited space, while rural areas offer larger properties at lower prices. Suburban areas provide a middle ground, balancing affordability with desirable features.
+
+    ###Final Answer:
+    - Property prices increase from rural to suburban to urban areas due to differences in population density, property size, and amenities.
     """)
 
 # House Size Predictor section
