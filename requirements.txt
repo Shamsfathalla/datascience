@@ -6,3 +6,4 @@ matplotlib
 seaborn
 joblib
 requests
+import plotly.graph_objects as go
