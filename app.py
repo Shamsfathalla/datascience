@@ -166,6 +166,39 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
+    # Plotly visualization
+    st.subheader("Price Impact of Bedrooms, Bathrooms, and Bed/Bath Ratio")
+
+    # Plot 1: Bed vs Price (using plotly express)
+    fig1 = px.line(df, x='bed', y='price', title='Bedrooms vs Price')
+    fig1.update_layout(xaxis_title='Number of Bedrooms', yaxis_title='Price')
+    st.plotly_chart(fig1)
+
+    # Plot 2: Bath vs Price
+    fig2 = px.line(df, x='bath', y='price', title='Bathrooms vs Price')
+    fig2.update_layout(xaxis_title='Number of Bathrooms', yaxis_title='Price')
+    st.plotly_chart(fig2)
+
+    # Plot 3: Bed/Bath Ratio vs Price
+    fig3 = px.line(df, x='bed_bath_ratio', y='price', title='Bed/Bath Ratio vs Price')
+    fig3.update_layout(xaxis_title='Bed to Bath Ratio', yaxis_title='Price')
+    st.plotly_chart(fig3)
+
+    # Plot 4: price_per_bed vs. number of bedrooms
+    fig4 = px.line(df, x='bed', y='price_per_bed', title='Price per Bed vs. Number of Bedrooms')
+    fig4.update_layout(xaxis_title='Number of Bedrooms', yaxis_title='Price per Bed')
+    st.plotly_chart(fig4)
+
+    # Plot 5: price_per_bath vs. number of bathrooms
+    fig5 = px.line(df, x='bath', y='price_per_bath', title='Price per Bath vs. Number of Bathrooms')
+    fig5.update_layout(xaxis_title='Number of Bathrooms', yaxis_title='Price per Bath')
+    st.plotly_chart(fig5)
+
+    # Plot 6: price_per_bed_bath vs. bed_bath_ratio
+    fig6 = px.line(df, x='bed_bath_ratio', y='price_per_bed_bath', title='Price per Bed & Bath vs. Bed-Bath Ratio')
+    fig6.update_layout(xaxis_title='Bed-Bath Ratio', yaxis_title='Price per Bed & Bath')
+    st.plotly_chart(fig6)
+    
     # Key insights section
     st.write("""
     ### Key Insights:
