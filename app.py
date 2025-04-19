@@ -168,35 +168,6 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Function to create a line plot with markers
-    def create_line_plot(x, y, data, title, x_title, y_title):
-        avg_data = data.groupby(x)[y].mean().reset_index()
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=avg_data[x],
-            y=avg_data[y],
-            mode='lines+markers+text',
-            text=[f'{v:.2f}' for v in avg_data[y]],
-            textposition='top center',
-            line=dict(color='blue', width=2),
-            marker=dict(size=10)
-        ))
-        fig.update_layout(
-            title=title,
-            xaxis_title=x_title,
-            yaxis_title=y_title,
-            height=400
-        )
-        return fig
-
-    st.subheader("Property Features vs Price Analysis")
-
-    # Plot and display each chart individually (like the regional section)
-    fig_bed_price = create_line_plot('bed', 'price', df,
-                                     'Bedrooms vs Price',
-                                     'Number of Bedrooms', 'Price')
-    st.plotly_chart(fig_bed_price)
-
     # Key insights section
     st.write("""
     ### Key Insights:
