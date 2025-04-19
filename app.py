@@ -121,10 +121,26 @@ elif section == "Regional Price Differences":
     
     st.write("""
     ### Key Insights:
-    - The **Northeast** region has the highest average property prices
-    - The **West** follows closely behind the Northeast
-    - The **Midwest** and **South** regions have significantly lower average prices
-    - This pattern reflects the general cost of living differences across U.S. regions
+    - West Region:
+        - Property Price : The West has the highest average property price, driven by factors such as strong demand, desirable locations (e.g., coastal areas, major cities like Los Angeles, San Francisco), and high economic activity.
+        - Population and Density : Despite having a moderate population density, the West's high property prices suggest that other factors, such as lifestyle preferences and economic opportunities, play a significant role in driving up costs.
+    - Northeast Region :
+        - Property Price : The Northeast has one of the highest property prices, second only to the West. This aligns with its high population density and extensive urban development, which typically correlates with higher property values.
+        - Population and Density : The Northeast's high density reflects its concentration of major cities (e.g., New York City, Boston) and robust economic activity, contributing to elevated property prices.
+    - South Region :
+        - Property Price : The South has property prices slightly lower than the Northeast but higher than the Midwest. This suggests that while the South may not have the same level of urbanization or economic activity as the Northeast, it still benefits from growing regional economies and increasing demand for housing.
+        - Population and Density : The South has a lower population density and average property size, indicating that factors beyond density (e.g., regional economic growth, migration patterns) influence property prices.
+    - Midwest Region :
+        - Property Price : The Midwest has the lowest average property price, reflecting lower demand and different market dynamics compared to other regions.
+        - Population and Density : With lower population density and moderate property sizes, the Midwest appears to be less expensive overall. This could be due to slower economic growth, fewer major metropolitan areas, and less competition for housing.
+
+    ### Final Answer
+    - The property prices differ significantly between U.S. regions, with the following ranking from highest to lowest:
+        - West (Highest average property price)
+        - Northeast
+        - South
+        - Midwest (Lowest average property price)
+    - These differences are influenced by a combination of factors, including population density, urban development, economic activity, and regional demand for housing. The West and Northeast, with their high densities and economic hubs, command the highest property prices, while the Midwest, with its lower density and slower economic growth, has the lowest property prices. The South falls in between, benefiting from moderate economic growth and increasing demand.
     """)
 
 # Bedrooms/Bathrooms Impact section
