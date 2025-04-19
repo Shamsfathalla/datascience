@@ -411,10 +411,31 @@ elif section == "Urban/Suburban/Rural Prices":
     """)
 
 # House Size Predictor section
+# Mock city_type_labels and area_type_map
 city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis'}
 area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
 
-df = st.session_state.get('df', pd.DataFrame())
+# Function to download and extract dataset
+@st.cache_data
+def load_dataset():
+    url = "https://raw.githubusercontent.com/Shamsfathalla/datascience/ab7a1356065e8d0e4b826081d16cf6e9efe58815/datasets.zip"
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            st.error(f"Failed to download dataset. Status code: {response.status_code}")
+            return None
+        
+        # Extract zip file
+        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+            with z.open('feature_engineered_dataset_capped_scaled.csv') as f:
+                df = pd.read_csv(f)
+        return df
+    except Exception as e:
+        st.error(f"Error loading dataset: {str(e)}")
+        return None
+
+# Load dataset
+df = load_dataset()
 
 # House Price Predictor section
 st.header("House Price Predictor")
@@ -427,8 +448,8 @@ Adjust the sliders and select options to input property features and see the pre
 features = ['bed', 'bath', 'house_size', 'acre_lot', 'city_type', 'area_type']
 
 # Debug: Check DataFrame and columns
-if df.empty:
-    st.error("Error: DataFrame is empty. Please ensure the dataset is loaded correctly.")
+if df is None or df.empty:
+    st.error("Error: DataFrame is empty or failed to load. Please ensure the dataset is accessible.")
     st.stop()
 else:
     st.write("Available columns in DataFrame:", list(df.columns))
@@ -445,6 +466,23 @@ if 'price' not in df.columns:
 # Prepare features and target
 X = df[features]
 y = df['price']
+
+# Get original ranges for inverse transformation (approximate)
+# These should match the original dataset before scaling
+original_price_max = 2000000  # Adjust based on original data (e.g., max price in dollars)
+original_price_min = 0        # Min price in dollars
+original_house_size_max = 10000  # Max house size in sq ft
+original_house_size_min = 500    # Min house size in sq ft
+original_acre_lot_max = 10.0     # Max acre lot in acres
+original_acre_lot_min = 0.1      # Min acre lot in acres
+
+# Fit PowerTransformer for acre_lot (since original transformer is not saved)
+pt_acre_lot = PowerTransformer(method='yeo-johnson', standardize=False)
+if 'acre_lot' in df.columns:
+    # Inverse MinMax scaling to get log-transformed values
+    acre_lot_scaled = df['acre_lot'].values.reshape(-1, 1)
+    acre_lot_log = np.expm1(acre_lot_scaled)  # Approximate log1p values
+    pt_acre_lot.fit(acre_lot_log)
 
 # Train a simple model (with caching)
 @st.cache_resource
@@ -478,13 +516,40 @@ with col2:
     city_type = st.selectbox("City Type", options=list(city_type_labels.values()))
     area_type = st.selectbox("Area Type", options=list(area_type_map.values()))
 
-# Convert city_type and area_type back to numerical values
+# Convert city_type and area_type to numerical values
 city_type_num = [k for k, v in city_type_labels.items() if v == city_type][0]
 area_type_num = [k for k, v in area_type_map.items() if v == area_type][0]
 
+# Transform and scale user inputs
+# house_size: Apply log1p and MinMax scaling
+house_size_log = np.log1p(house_size)
+house_size_scaler = MinMaxScaler()
+house_size_log_range = np.log1p(np.array([original_house_size_min, original_house_size_max])).reshape(-1, 1)
+house_size_scaler.fit(house_size_log_range)
+house_size_scaled = house_size_scaler.transform([[house_size_log]])[0][0]
+
+# acre_lot: Apply log1p, PowerTransformer, and MinMax scaling
+acre_lot_log = np.log1p(acre_lot)
+acre_lot_pt = pt_acre_lot.transform([[acre_lot_log]])[0][0]
+acre_lot_scaler = MinMaxScaler()
+acre_lot_log_range = np.log1p(np.array([original_acre_lot_min, original_acre_lot_max])).reshape(-1, 1)
+acre_lot_log_transformed = pt_acre_lot.transform(acre_lot_log_range)
+acre_lot_scaler.fit(acre_lot_log_transformed)
+acre_lot_scaled = acre_lot_scaler.transform([[acre_lot_pt]])[0][0]
+
 # Make prediction
-input_data = [[beds, baths, house_size, acre_lot, city_type_num, area_type_num]]
-predicted_price = model.predict(input_data)[0]
+input_data = [[beds, baths, house_size_scaled, acre_lot_scaled, city_type_num, area_type_num]]
+predicted_price_scaled = model.predict(input_data)[0]
+
+# Inverse transform predicted price
+# Step 1: Inverse MinMax scaling
+price_scaler = MinMaxScaler()
+price_log_range = np.log1p(np.array([original_price_min, original_price_max])).reshape(-1, 1)
+price_scaler.fit(price_log_range)
+predicted_price_log = price_scaler.inverse_transform([[predicted_price_scaled]])[0][0]
+
+# Step 2: Inverse log1p
+predicted_price = np.expm1(predicted_price_log)
 
 # Display prediction
 st.subheader("Prediction Result")
