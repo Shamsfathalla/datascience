@@ -8,6 +8,7 @@ import io
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+import plotly.graph_objects as go
 
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
@@ -99,25 +100,52 @@ if section == "Home":
 # Regional Price Differences section
 elif section == "Regional Price Differences":
     st.header("1. How do property prices differ between the different U.S. regions?")
-    
-    # Calculate average prices by region
+
+    # Define region names
+    region_names = ['Midwest', 'Northeast', 'South', 'West']
     region_columns = ['region_Midwest', 'region_Northeast', 'region_South', 'region_West']
+
+    # Average price by region
     region_avg_prices = df[region_columns].mul(df['price'], axis=0).sum() / df[region_columns].sum()
-    region_avg_prices.index = ['Midwest', 'Northeast', 'South', 'West']
-    
-    # Create visualization
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x=region_avg_prices.index, y=region_avg_prices.values, 
-                palette=['blue', 'green', 'red', 'purple'], ax=ax)
-    ax.set_title("Average Property Price by Region", fontsize=16)
-    ax.set_xlabel("Region", fontsize=14)
-    ax.set_ylabel("Average Price", fontsize=14)
-    
-    # Add value labels with 4 decimal places (no rounding)
-    for i, value in enumerate(region_avg_prices.values):
-        ax.text(i, value, f'{value:.4f}', ha='center', va='bottom', fontsize=12)
-    
-    st.pyplot(fig)
+    region_avg_prices.index = region_names
+
+    # Average population by region
+    region_avg_population_2024 = df[region_columns].mul(df['population_2024'], axis=0).sum() / df[region_columns].sum()
+    region_avg_population_2024.index = region_names
+
+    # Average density by region
+    region_avg_density = df[region_columns].mul(df['density'], axis=0).sum() / df[region_columns].sum()
+    region_avg_density.index = region_names
+
+    # Plotly bar charts
+    fig_price = go.Figure(data=[
+        go.Bar(x=region_avg_prices.index, y=region_avg_prices.values, 
+               marker_color=['blue', 'green', 'red', 'purple'],
+               text=[f'{v:.4f}' for v in region_avg_prices.values],
+               textposition='outside')
+    ])
+    fig_price.update_layout(title="Average Property Price by Region", xaxis_title="Region", yaxis_title="Average Price")
+
+    fig_population = go.Figure(data=[
+        go.Bar(x=region_avg_population_2024.index, y=region_avg_population_2024.values, 
+               marker_color=['blue', 'green', 'red', 'purple'],
+               text=[f'{v:.4f}' for v in region_avg_population_2024.values],
+               textposition='outside')
+    ])
+    fig_population.update_layout(title="Average Population in 2024 by Region", xaxis_title="Region", yaxis_title="Average Population")
+
+    fig_density = go.Figure(data=[
+        go.Bar(x=region_avg_density.index, y=region_avg_density.values, 
+               marker_color=['blue', 'green', 'red', 'purple'],
+               text=[f'{v:.4f}' for v in region_avg_density.values],
+               textposition='outside')
+    ])
+    fig_density.update_layout(title="Average Density by Region", xaxis_title="Region", yaxis_title="Average Density")
+
+    # Display charts
+    st.plotly_chart(fig_price)
+    st.plotly_chart(fig_population)
+    st.plotly_chart(fig_density)
     
     st.write("""
     ### Key Insights:
