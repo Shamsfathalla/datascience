@@ -14,7 +14,8 @@ import plotly.express as px
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 
-# Load the dataset from zip file on GitHub
+# Load the dataset from zip file on GitHub with caching
+@st.cache_data
 def load_data():
     zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
     
@@ -29,6 +30,21 @@ def load_data():
                 with zip_ref.open(csv_file_name) as csv_file:
                     df = pd.read_csv(csv_file)
                     st.toast("Successfully loaded dataset from GitHub zip", icon="✅")
+                    
+                    # Mapping for readability
+                    area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+                    city_type_labels = {
+                        0: 'Town',
+                        1: 'Small City',
+                        2: 'Medium City',
+                        3: 'Large City',
+                        4: 'Metropolis'
+                    }
+
+                    # Apply readable labels
+                    df['area_type_label'] = df['area_type'].map(area_type_map)
+                    df['city_type_label'] = df['city_type'].map(city_type_labels)
+                    
                     return df
             else:
                 st.error("CSV file not found in the zip archive")
@@ -38,26 +54,12 @@ def load_data():
         st.error(f"Failed to load data from GitHub: {str(e)}")
         return None
 
-# Load the data
+# Load the data (will be cached after first run)
 df = load_data()
 
 if df is None:
     st.error("Critical Error: Could not load dataset. Please check the data source.")
     st.stop()
-
-# Mapping for readability
-area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
-city_type_labels = {
-    0: 'Town',
-    1: 'Small City',
-    2: 'Medium City',
-    3: 'Large City',
-    4: 'Metropolis'
-}
-
-# Apply readable labels
-df['area_type_label'] = df['area_type'].map(area_type_map)
-df['city_type_label'] = df['city_type'].map(city_type_labels)
 
 # Title
 st.title("U.S. Housing Market Analysis")
@@ -87,7 +89,7 @@ if section == "Home":
     """)
     
     st.image("https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80", 
-             caption="U.S. Housing Market Analysis", use_container_width=True)
+             caption="U.S. Housing Market Analysis", use_column_width=True)
 
 # Regional Price Differences section
 elif section == "Regional Price Differences":
@@ -193,8 +195,7 @@ elif section == "House Size by City Type":
     st.header("3. What is the average house size per city types in the U.S.?")
     
     # Calculate average house size by city type
-    avg_house_size_city_type = df.groupby('city_type')['house_size'].mean().reset_index()
-    avg_house_size_city_type['city_type_label'] = avg_house_size_city_type['city_type'].map(city_type_labels)
+    avg_house_size_city_type = df.groupby('city_type_label')['house_size'].mean().reset_index()
     
     # Create visualization
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -260,10 +261,15 @@ elif section == "House Size Predictor":
     X = df[features]
     y = df['house_size']
     
-    # Train a simple model
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    # Train a simple model (with caching)
+    @st.cache_resource
+    def train_model():
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X_train, y_train)
+        return model, X_test, y_test
+    
+    model, X_test, y_test = train_model()
     
     # Display model performance
     y_pred = model.predict(X_test)
