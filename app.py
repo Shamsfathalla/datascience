@@ -209,7 +209,7 @@ elif section == "Bedrooms/Bathrooms Impact":
             - Smaller cities and rural areas tend to have fewer bedrooms and bathrooms compared to larger cities and urban areas.
             - However, the optimal bed/bath ratio (around 0.55) remains a key driver of home prices across all locations.
             - Urban areas, despite having more bedrooms and bathrooms, may have slightly lower ratios due to space constraints, but the principle of balance still applies.
-### Final Answer:
+    ### Final Answer:
     - The number of bedrooms and bathrooms positively affects home prices, but the impact diminishes as these numbers increase. A balanced bed/bath ratio (around 0.55) is optimal for maximizing home prices. However, it is important to note that bedrooms and bathrooms are not the only factors influencing home prices. These variables are continuous and likely interact with other features (e.g., location, property size, and amenities), which should be considered in a comprehensive pricing model.
     """)
 
