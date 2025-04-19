@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as Ascendancy
 import seaborn as sns
 import requests
 import zipfile
@@ -8,8 +8,6 @@ import io
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
-import plotly.graph_objects as go
-import plotly.express as px
 
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
@@ -110,48 +108,59 @@ elif section == "Regional Price Differences":
     region_avg_population_2024.index = region_names
     region_avg_density.index = region_names
 
-    # Function to create a bar chart
-    def create_bar_chart(title, y_vals, y_title):
-        return go.Figure(
-            data=[go.Bar(
-                x=region_names,
-                y=y_vals,
-                marker_color=region_colors,
-                text=[f'{v:.4f}' for v in y_vals],
-                textposition='outside'
-            )],
-            layout=go.Layout(
-                title=title,
-                xaxis_title="Region",
-                yaxis_title=y_title,
-                height=400
-            )
-        )
+    # Set Seaborn style
+    sns.set_style("whitegrid")
 
-    # Create all bar charts
-    fig_price = create_bar_chart("Average Property Price by Region", region_avg_prices.values, "Average Price")
-    fig_population = create_bar_chart("Average Population in 2024 by Region", region_avg_population_2024.values, "Average Population")
-    fig_density = create_bar_chart("Average Density by Region", region_avg_density.values, "Average Density")
+    # Create figure with three subplots
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 
-    # Display charts
-    st.plotly_chart(fig_price)
-    st.plotly_chart(fig_population)
-    st.plotly_chart(fig_density)
+    # Bar plot for average prices
+    sns.barplot(x=region_names, y=region_avg_prices.values, palette=region_colors, ax=axes[0])
+    axes[0].set_title("Average Property Price by Region")
+    axes[0].set_xlabel("Region")
+    axes[0].set_ylabel("Average Price")
+    for i, v in enumerate(region_avg_prices.values):
+        axes[0].text(i, v, f'{v:.4f}', ha='center', va='bottom')
+    axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+
+    # Bar plot for population
+    sns.barplot(x=region_names, y=region_avg_population_2024.values, palette=region_colors, ax=axes[1])
+    axes[1].set_title("Average Population in 2024 by Region")
+    axes[1].set_xlabel("Region")
+    axes[1].set_ylabel("Average Population")
+    for i, v in enumerate(region_avg_population_2024.values):
+        axes[1].text(i, v, f'{v:.4f}', ha='center', va='bottom')
+    axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+
+    # Bar plot for density
+    sns.barplot(x=region_names, y=region_avg_density.values, palette=region_colors, ax=axes[2])
+    axes[2].set_title("Average Density by Region")
+    axes[2].set_xlabel("Region")
+    axes[2].set_ylabel("Average Density")
+    for i, v in enumerate(region_avg_density.values):
+        axes[2].text(i, v, f'{v:.4f}', ha='center', va='bottom')
+    axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Display the plot
+    st.pyplot(fig)
     
     st.write("""
     ### Key Insights:
     - West Region:
-        - Property Price : The West has the highest average property price, driven by factors such as strong demand, desirable locations (e.g., coastal areas, major cities like Los Angeles, San Francisco), and high economic activity.
-        - Population and Density : Despite having a moderate population density, the West's high property prices suggest that other factors, such as lifestyle preferences and economic opportunities, play a significant role in driving up costs.
-    - Northeast Region :
-        - Property Price : The Northeast has one of the highest property prices, second only to the West. This aligns with its high population density and extensive urban development, which typically correlates with higher property values.
-        - Population and Density : The Northeast's high density reflects its concentration of major cities (e.g., New York City, Boston) and robust economic activity, contributing to elevated property prices.
-    - South Region :
-        - Property Price : The South has property prices slightly lower than the Northeast but higher than the Midwest. This suggests that while the South may not have the same level of urbanization or economic activity as the Northeast, it still benefits from growing regional economies and increasing demand for housing.
-        - Population and Density : The South has a lower population density and average property size, indicating that factors beyond density (e.g., regional economic growth, migration patterns) influence property prices.
-    - Midwest Region :
-        - Property Price : The Midwest has the lowest average property price, reflecting lower demand and different market dynamics compared to other regions.
-        - Population and Density : With lower population density and moderate property sizes, the Midwest appears to be less expensive overall. This could be due to slower economic growth, fewer major metropolitan areas, and less competition for housing.
+        - Property Price: The West has the highest average property price, driven by factors such as strong demand, desirable locations (e.g., coastal areas, major cities like Los Angeles, San Francisco), and high economic activity.
+        - Population and Density: Despite having a moderate population density, the West's high property prices suggest that other factors, such as lifestyle preferences and economic opportunities, play a significant role in driving up costs.
+    - Northeast Region:
+        - Property Price: The Northeast has one of the highest property prices, second only to the West. This aligns with its high population density and extensive urban development, which typically correlates with higher property values.
+        - Population and Density: The Northeast's high density reflects its concentration of major cities (e.g., New York City, Boston) and robust economic activity, contributing to elevated property prices.
+    - South Region:
+        - Property Price: The South has property prices slightly lower than the Northeast but higher than the Midwest. This suggests that while the South may not have the same level of urbanization or economic activity as the Northeast, it still benefits from growing regional economies and increasing demand for housing.
+        - Population and Density: The South has a lower population density and average property size, indicating that factors beyond density (e.g., regional economic growth, migration patterns) influence property prices.
+    - Midwest Region:
+        - Property Price: The Midwest has the lowest average property price, reflecting lower demand and different market dynamics compared to other regions.
+        - Population and Density: With lower population density and moderate property sizes, the Midwest appears to be less expensive overall. This could be due to slower economic growth, fewer major metropolitan areas, and less competition for housing.
 
     ### Final Answer
     - The property prices differ significantly between U.S. regions, with the following ranking from highest to lowest:
@@ -159,7 +168,7 @@ elif section == "Regional Price Differences":
         - Northeast
         - South
         - Midwest (Lowest average property price)
-    - These differences are influenced by a combination of factors, including population density, urban development, economic activity, and regional demand for housing. The West and Northeast, with their high densities and economic hubs, command the highest property prices, while the Midwest, with its lower density and slower economic growth, has the lowest property prices. The South falls in between, benefiting from moderate economic growth and increasing demand.
+    - These differences are influenced by a combination of factors, including population density, urban development, economic activity, and regional demand for housing. The West and Northeast, with their high density and economic hubs, command the highest property prices, while the Midwest, with its lower density and slower economic growth, has the lowest property prices. The South falls in between, benefiting from moderate economic growth and increasing demand.
     """)
     
 # Bedrooms/Bathrooms Impact section
@@ -182,7 +191,6 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[0].set_title('Bedrooms vs Price')
     axes[0].set_xlabel('Number of Bedrooms')
     axes[0].set_ylabel('Price')
-    # Format y-axis to show 4 decimal places
     axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
     
     # Plot 2: Bath vs Price
@@ -191,7 +199,6 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[1].set_title('Bathrooms vs Price')
     axes[1].set_xlabel('Number of Bathrooms')
     axes[1].set_ylabel('Price')
-    # Format y-axis to show 4 decimal places
     axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
     
     # Plot 3: Bed_Bath_Ratio vs Price
@@ -200,9 +207,7 @@ elif section == "Bedrooms/Bathrooms Impact":
     axes[2].set_title('Bed/Bath Ratio vs Price')
     axes[2].set_xlabel('Bed to Bath Ratio')
     axes[2].set_ylabel('Price')
-    # Format y-axis to show 4 decimal places
     axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
-    # Format x-axis to show 4 decimal places for bed_bath_ratio
     axes[2].xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.4f}'))
     
     # Adjust layout to prevent overlap
@@ -211,13 +216,12 @@ elif section == "Bedrooms/Bathrooms Impact":
     # Display the plot in Streamlit
     st.pyplot(fig)
     
-    # Key insights section
     st.write("""
     ### Key Insights:
-    - Number of Bedrooms : Increasing the number of bedrooms generally increases the home price, but the marginal increase in price diminishes as the number of bedrooms grows. Larger homes become less expensive per bedroom.
-    - Number of Bathrooms : Similarly, increasing the number of bathrooms raises the home price, with diminishing returns as the number of bathrooms increases. Larger homes become less expensive per bathroom.
-    - Bed/Bath Ratio : A balanced ratio of bedrooms to bathrooms (around 0.55) tends to maximize home prices. Homes with an imbalanced ratio (too many bedrooms relative to bathrooms or vice versa) may have lower prices.
-        - Location and Area Type :
+    - Number of Bedrooms: Increasing the number of bedrooms generally increases the home price, but the marginal increase in price diminishes as the number of bedrooms grows. Larger homes become less expensive per bedroom.
+    - Number of Bathrooms: Similarly, increasing the number of bathrooms raises the home price, with diminishing returns as the number of bathrooms increases. Larger homes become less expensive per bathroom.
+    - Bed/Bath Ratio: A balanced ratio of bedrooms to bathrooms (around 0.55) tends to maximize home prices. Homes with an imbalanced ratio (too many bedrooms relative to bathrooms or vice versa) may have lower prices.
+        - Location and Area Type:
             - Smaller cities and rural areas tend to have fewer bedrooms and bathrooms compared to larger cities and urban areas.
             - However, the optimal bed/bath ratio (around 0.55) remains a key driver of home prices across all locations.
             - Urban areas, despite having more bedrooms and bathrooms, may have slightly lower ratios due to space constraints, but the principle of balance still applies.
