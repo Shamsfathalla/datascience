@@ -4,6 +4,4 @@ pandas
 scikit-learn
 matplotlib
 seaborn
-joblib
 requests
-plotly
