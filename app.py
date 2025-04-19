@@ -411,17 +411,17 @@ elif section == "Urban/Suburban/Rural Prices":
     """)
 
 # House Size Predictor section
-elif section == "House Size Predictor":
-    st.header("House Size Predictor")
+elif section == "House Price Predictor":
+    st.header("House Price Predictor")
     st.write("""
-    Predict the size of a house based on its characteristics.
-    Adjust the sliders to input property features and see the predicted size.
+    Predict the price of a property based on its characteristics.
+    Adjust the sliders to input property features and see the predicted price.
     """)
     
-    # Prepare data for modeling
-    features = ['bed', 'bath', 'price', 'property_size', 'acre_lot', 'city_type', 'area_type']
+    # Prepare data for modeling - using features that might affect price
+    features = ['bed', 'bath', 'house_size', 'property_size', 'acre_lot', 'city_type', 'area_type']
     X = df[features]
-    y = df['house_size']
+    y = df['price']  # Now predicting price instead of house_size
     
     # Train a simple model (with caching)
     @st.cache_resource
@@ -440,7 +440,7 @@ elif section == "House Size Predictor":
     
     st.sidebar.write(f"Model Performance:")
     st.sidebar.write(f"- R² Score: {r2:.3f}")
-    st.sidebar.write(f"- Mean Squared Error: {mse:,.0f}")
+    st.sidebar.write(f"- Mean Squared Error: ${mse:,.0f}")
     
     # User inputs
     col1, col2 = st.columns(2)
@@ -448,7 +448,7 @@ elif section == "House Size Predictor":
     with col1:
         beds = st.slider("Number of Bedrooms", min_value=1, max_value=8, value=3)
         baths = st.slider("Number of Bathrooms", min_value=1, max_value=6, value=2)
-        price = st.slider("Price ($)", min_value=50000, max_value=2000000, value=300000, step=50000)
+        house_size = st.slider("House Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
     
     with col2:
         property_size = st.slider("Property Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
@@ -461,12 +461,12 @@ elif section == "House Size Predictor":
     area_type_num = [k for k, v in area_type_map.items() if v == area_type][0]
     
     # Make prediction
-    input_data = [[beds, baths, price, property_size, acre_lot, city_type_num, area_type_num]]
-    predicted_size = model.predict(input_data)[0]
+    input_data = [[beds, baths, house_size, property_size, acre_lot, city_type_num, area_type_num]]
+    predicted_price = model.predict(input_data)[0]
     
     # Display prediction
     st.subheader("Prediction Result")
-    st.metric(label="Predicted House Size", value=f"{predicted_size:,.0f} square feet")
+    st.metric(label="Predicted Property Price", value=f"${predicted_price:,.0f}")
     
     # Show feature importance
     st.subheader("Feature Importance")
@@ -477,5 +477,5 @@ elif section == "House Size Predictor":
     
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x='Importance', y='Feature', data=feature_importance, palette='viridis', ax=ax)
-    ax.set_title('Feature Importance for House Size Prediction', fontsize=16)
+    ax.set_title('Feature Importance for Price Prediction', fontsize=16)
     st.pyplot(fig)
