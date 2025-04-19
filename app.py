@@ -89,7 +89,7 @@ if section == "Home":
     """)
     
     st.image("https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80", 
-             caption="U.S. Housing Market Analysis", use_column_width=True)
+             caption="U.S. Housing Market Analysis", use_container_width=True)
 
 # Regional Price Differences section
 elif section == "Regional Price Differences":
