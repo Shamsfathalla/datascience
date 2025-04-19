@@ -3,32 +3,51 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import requests
+import zipfile
+import io
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
-# Load the dataset with fallback to GitHub
+# Load the dataset from zip file on GitHub
 @st.cache_data
 def load_data():
-    # Try local path first
-    local_path = r"C:\Users\shams\datasets\feature_engineered_dataset_capped_scaled.csv"
-    github_path = "https://raw.githubusercontent.com/Shamsfathalla/datascience/main/datasets/feature_engineered_dataset_capped_scaled.csv"
+    # GitHub raw content URL for the zip file
+    zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
     
     try:
-        df = pd.read_csv(local_path)
-        st.sidebar.success("Loaded data from local path")
-        return df
+        # Download the zip file
+        response = requests.get(zip_url)
+        response.raise_for_status()
+        
+        # Extract the zip file in memory
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_ref:
+            # Find our dataset file in the zip
+            csv_file_name = None
+            for file in zip_ref.namelist():
+                if "feature_engineered_dataset_capped_scaled.csv" in file:
+                    csv_file_name = file
+                    break
+            
+            if csv_file_name:
+                with zip_ref.open(csv_file_name) as csv_file:
+                    df = pd.read_csv(csv_file)
+                    st.sidebar.success("Successfully loaded dataset from GitHub zip")
+                    return df
+            else:
+                st.error("CSV file not found in the zip archive")
+                return None
+                
     except Exception as e:
-        st.sidebar.warning(f"Local load failed: {str(e)}. Trying GitHub...")
-        try:
-            df = pd.read_csv(github_path)
-            st.sidebar.success("Loaded data from GitHub")
-            return df
-        except Exception as e:
-            st.error(f"Failed to load data from both sources: {str(e)}")
-            return None
+        st.error(f"Failed to load data from GitHub: {str(e)}")
+        return None
 
 df = load_data()
+
+if df is None:
+    st.error("Critical Error: Could not load dataset. Please check the data source.")
+    st.stop()
 
 # Mapping for readability
 area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
@@ -53,12 +72,12 @@ st.title("U.S. Housing Market Analysis")
 # Sidebar for navigation
 st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", 
-                          ["Home", 
-                           "Regional Price Differences", 
-                           "Bedrooms/Bathrooms Impact", 
-                           "House Size by City Type", 
-                           "Urban/Suburban/Rural Prices",
-                           "House Size Predictor"])
+                         ["Home", 
+                          "Regional Price Differences", 
+                          "Bedrooms/Bathrooms Impact", 
+                          "House Size by City Type", 
+                          "Urban/Suburban/Rural Prices",
+                          "House Size Predictor"])
 
 # Home section
 if section == "Home":
