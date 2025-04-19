@@ -166,41 +166,104 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Line Plot 1: Bedrooms vs Price
+    # Create Plotly figures
+    # Plot 1: Bedrooms vs Price
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=df['bed'], y=df['price'], mode='lines+markers', name='Price'))
-    fig1.update_layout(title='Bedrooms vs Price', xaxis_title='Number of Bedrooms', yaxis_title='Price')
-    st.plotly_chart(fig1)
+    # Line plot
+    bed_avg = df.groupby('bed')['price'].mean().reset_index()
+    fig1.add_trace(go.Scatter(
+        x=bed_avg['bed'],
+        y=bed_avg['price'],
+        mode='lines',
+        name='Average Price',
+        line=dict(color='blue')
+    ))
+    # Scatter points
+    fig1.add_trace(go.Scatter(
+        x=df['bed'],
+        y=df['price'],
+        mode='markers',
+        name='Individual Houses',
+        marker=dict(size=6, color='red', opacity=0.5),
+        text=df.apply(lambda row: f"Bed: {row['bed']:.4f}<br>Price: {row['price']:.4f}", axis=1),
+        hoverinfo='text'
+    ))
+    fig1.update_layout(
+        title="Bedrooms vs Price",
+        xaxis_title="Number of Bedrooms",
+        yaxis_title="Price",
+        height=400,
+        showlegend=True,
+        xaxis=dict(tickformat=".4f"),
+        yaxis=dict(tickformat=".4f")
+    )
 
-    # Line Plot 2: Bathrooms vs Price
+    # Plot 2: Bathrooms vs Price
     fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(x=df['bath'], y=df['price'], mode='lines+markers', name='Price'))
-    fig2.update_layout(title='Bathrooms vs Price', xaxis_title='Number of Bathrooms', yaxis_title='Price')
-    st.plotly_chart(fig2)
+    # Line plot
+    bath_avg = df.groupby('bath')['price'].mean().reset_index()
+    fig2.add_trace(go.Scatter(
+        x=bath_avg['bath'],
+        y=bath_avg['price'],
+        mode='lines',
+        name='Average Price',
+        line=dict(color='blue')
+    ))
+    # Scatter points
+    fig2.add_trace(go.Scatter(
+        x=df['bath'],
+        y=df['price'],
+        mode='markers',
+        name='Individual Houses',
+        marker=dict(size=6, color='red', opacity=0.5),
+        text=df.apply(lambda row: f"Bath: {row['bath']:.4f}<br>Price: {row['price']:.4f}", axis=1),
+        hoverinfo='text'
+    ))
+    fig2.update_layout(
+        title="Bathrooms vs Price",
+        xaxis_title="Number of Bathrooms",
+        yaxis_title="Price",
+        height=400,
+        showlegend=True,
+        xaxis=dict(tickformat=".4f"),
+        yaxis=dict(tickformat=".4f")
+    )
 
-    # Line Plot 3: Bed/Bath Ratio vs Price
+    # Plot 3: Bed/Bath Ratio vs Price
     fig3 = go.Figure()
-    fig3.add_trace(go.Scatter(x=df['bed_bath_ratio'], y=df['price'], mode='lines+markers', name='Price'))
-    fig3.update_layout(title='Bed/Bath Ratio vs Price', xaxis_title='Bed to Bath Ratio', yaxis_title='Price')
-    st.plotly_chart(fig3)
+    # Line plot
+    ratio_avg = df.groupby('bed_bath_ratio')['price'].mean().reset_index()
+    fig3.add_trace(go.Scatter(
+        x=ratio_avg['bed_bath_ratio'],
+        y=ratio_avg['price'],
+        mode='lines',
+        name='Average Price',
+        line=dict(color='blue')
+    ))
+    # Scatter points
+    fig3.add_trace(go.Scatter(
+        x=df['bed_bath_ratio'],
+        y=df['price'],
+        mode='markers',
+        name='Individual Houses',
+        marker=dict(size=6, color='red', opacity=0.5),
+        text=df.apply(lambda row: f"Ratio: {row['bed_bath_ratio']:.4f}<br>Price: {row['price']:.4f}", axis=1),
+        hoverinfo='text'
+    ))
+    fig3.update_layout(
+        title="Bed/Bath Ratio vs Price",
+        xaxis_title="Bed to Bath Ratio",
+        yaxis_title="Price",
+        height=400,
+        showlegend=True,
+        xaxis=dict(tickformat=".4f"),
+        yaxis=dict(tickformat=".4f")
+    )
 
-    # Line Plot 4: Price per Bed vs Number of Bedrooms
-    fig4 = go.Figure()
-    fig4.add_trace(go.Scatter(x=df['bed'], y=df['price_per_bed'], mode='lines+markers', name='Price per Bed'))
-    fig4.update_layout(title='Price per Bed vs Bedrooms', xaxis_title='Number of Bedrooms', yaxis_title='Price per Bed')
-    st.plotly_chart(fig4)
-
-    # Line Plot 5: Price per Bath vs Number of Bathrooms
-    fig5 = go.Figure()
-    fig5.add_trace(go.Scatter(x=df['bath'], y=df['price_per_bath'], mode='lines+markers', name='Price per Bath'))
-    fig5.update_layout(title='Price per Bath vs Bathrooms', xaxis_title='Number of Bathrooms', yaxis_title='Price per Bath')
-    st.plotly_chart(fig5)
-
-    # Line Plot 6: Price per Bed & Bath vs Bed-Bath Ratio
-    fig6 = go.Figure()
-    fig6.add_trace(go.Scatter(x=df['bed_bath_ratio'], y=df['price_per_bed_bath'], mode='lines+markers', name='Price per Bed & Bath'))
-    fig6.update_layout(title='Price per Bed & Bath vs Bed-Bath Ratio', xaxis_title='Bed-Bath Ratio', yaxis_title='Price per Bed & Bath')
-    st.plotly_chart(fig6)
+    # Display plots
+    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True)
     
     # Key insights section
     st.write("""
