@@ -411,71 +411,84 @@ elif section == "Urban/Suburban/Rural Prices":
     """)
 
 # House Size Predictor section
-elif section == "House Price Predictor":
-    st.header("House Price Predictor")
-    st.write("""
-    Predict the price of a property based on its characteristics.
-    Adjust the sliders to input property features and see the predicted price.
-    """)
-    
-    # Prepare data for modeling - using features that might affect price
-    features = ['bed', 'bath', 'house_size', 'property_size', 'acre_lot', 'city_type', 'area_type']
-    X = df[features]
-    y = df['price']  # Now predicting price instead of house_size
-    
-    # Train a simple model (with caching)
-    @st.cache_resource
-    def train_model():
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
-        return model, X_test, y_test
-    
-    model, X_test, y_test = train_model()
-    
-    # Display model performance
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    
-    st.sidebar.write(f"Model Performance:")
-    st.sidebar.write(f"- R² Score: {r2:.3f}")
-    st.sidebar.write(f"- Mean Squared Error: ${mse:,.0f}")
-    
-    # User inputs
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        beds = st.slider("Number of Bedrooms", min_value=1, max_value=8, value=3)
-        baths = st.slider("Number of Bathrooms", min_value=1, max_value=6, value=2)
-        house_size = st.slider("House Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
-    
-    with col2:
-        property_size = st.slider("Property Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
-        acre_lot = st.slider("Lot Size (acres)", min_value=0.1, max_value=10.0, value=0.5, step=0.1)
-        city_type = st.selectbox("City Type", options=list(city_type_labels.values()))
-        area_type = st.selectbox("Area Type", options=list(area_type_map.values()))
-    
-    # Convert city_type and area_type back to numerical values
-    city_type_num = [k for k, v in city_type_labels.items() if v == city_type][0]
-    area_type_num = [k for k, v in area_type_map.items() if v == area_type][0]
-    
-    # Make prediction
-    input_data = [[beds, baths, house_size, property_size, acre_lot, city_type_num, area_type_num]]
-    predicted_price = model.predict(input_data)[0]
-    
-    # Display prediction
-    st.subheader("Prediction Result")
-    st.metric(label="Predicted Property Price", value=f"${predicted_price:,.0f}")
-    
-    # Show feature importance
-    st.subheader("Feature Importance")
-    feature_importance = pd.DataFrame({
-        'Feature': features,
-        'Importance': model.feature_importances_
-    }).sort_values('Importance', ascending=False)
-    
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='Importance', y='Feature', data=feature_importance, palette='viridis', ax=ax)
-    ax.set_title('Feature Importance for Price Prediction', fontsize=16)
-    st.pyplot(fig)
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Mock city_type_labels and area_type_map (based on typical encoding)
+city_type_labels = {0: 'Town', 1: 'Small', 2: 'Medium', 3: 'Large', 4: 'Metropolis"}
+area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+
+# House Price Predictor section
+st.header("House Price Predictor")
+st.write("""
+Predict the price of a property based on its characteristics.
+Adjust the sliders and select options to input property features and see the predicted price.
+""")
+
+# Prepare data for modeling
+features = ['bed', 'bath', 'house_size', 'acre_lot', 'city_type', 'area_type']
+# Assuming df is the provided dataset
+df = st.session_state.get('df', pd.DataFrame())  # Replace with actual data loading if needed
+X = df[features]
+y = df['price']
+
+# Train a simple model (with caching)
+@st.cache_resource
+def train_model():
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    return model, X_test, y_test
+
+model, X_test, y_test = train_model()
+
+# Display model performance
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+st.sidebar.write(f"Model Performance:")
+st.sidebar.write(f"- R² Score: {r2:.3f}")
+st.sidebar.write(f"- Mean Squared Error: {mse:,.0f}")
+
+# User inputs
+col1, col2 = st.columns(2)
+
+with col1:
+    beds = st.slider("Number of Bedrooms", min_value=1, max_value=8, value=3)
+    baths = st.slider("Number of Bathrooms", min_value=1, max_value=6, value=2)
+    house_size = st.slider("House Size (sq ft)", min_value=500, max_value=10000, value=2000, step=100)
+
+with col2:
+    acre_lot = st.slider("Lot Size (acres)", min_value=0.1, max_value=10.0, value=0.5, step=0.1)
+    city_type = st.selectbox("City Type", options=list(city_type_labels.values()))
+    area_type = st.selectbox("Area Type", options=list(area_type_map.values()))
+
+# Convert city_type and area_type back to numerical values
+city_type_num = [k for k, v in city_type_labels.items() if v == city_type][0]
+area_type_num = [k for k, v in area_type_map.items() if v == area_type][0]
+
+# Make prediction
+input_data = [[beds, baths, house_size, acre_lot, city_type_num, area_type_num]]
+predicted_price = model.predict(input_data)[0]
+
+# Display prediction
+st.subheader("Prediction Result")
+st.metric(label="Predicted Property Price", value=f"${predicted_price:,.0f}")
+
+# Show feature importance
+st.subheader("Feature Importance")
+feature_importance = pd.DataFrame({
+    'Feature': features,
+    'Importance': model.feature_importances_
+}).sort_values('Importance', ascending=False)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(x='Importance', y='Feature', data=feature_importance, palette='viridis', ax=ax)
+ax.set_title('Feature Importance for House Price Prediction', fontsize=16)
+st.pyplot(fig)
