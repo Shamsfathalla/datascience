@@ -243,29 +243,94 @@ elif section == "Bedrooms/Bathrooms Impact":
 elif section == "House Size by City Type":
     st.header("3. What is the average house size per city types in the U.S.?")
     
-    # Calculate average house size by city type
-    avg_house_size_city_type = df.groupby('city_type_label')['house_size'].mean().reset_index()
+        # Map area_type and city_type labels
+    area_type_map = {0: 'Rural', 1: 'Suburban', 2: 'Urban'}
+    city_type_labels = {
+        0: 'Town',
+        1: 'Small City',
+        2: 'Medium City',
+        3: 'Large City',
+        4: 'Metropolis'
+    }
     
-    # Create visualization
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='city_type_label', y='house_size', data=avg_house_size_city_type, 
-                palette='viridis', ax=ax, order=['Town', 'Small City', 'Medium City', 'Large City', 'Metropolis'])
-    ax.set_title('Average House Size by City Type', fontsize=16)
-    ax.set_xlabel('City Type', fontsize=14)
-    ax.set_ylabel('Average House Size (sq ft)', fontsize=14)
+    df['area_type_label'] = df['area_type'].map(area_type_map)
+    df['city_type_label'] = df['city_type'].map(city_type_labels)
     
-    # Add value labels
+    # Create subplots (4 rows, 3 columns) to adjust the layout with the new metrics
+    fig, axes = plt.subplots(4, 3, figsize=(20, 30))
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)  # Adjust spacing between subplots
+    
+    # Plot 1: Average House Size by City Type (Line plot)
+    avg_house_size_city_type = df.groupby('city_type')['house_size'].mean().reset_index()
+    avg_house_size_city_type['city_type_label'] = avg_house_size_city_type['city_type'].map(city_type_labels)
+    
+    sns.lineplot(x='city_type_label', y='house_size', data=avg_house_size_city_type, 
+                 marker='o', markersize=8, ax=axes[0, 0])
+    axes[0, 0].set_title('Average House Size by City Type', fontsize=14)
+    axes[0, 0].set_xlabel('City Type', fontsize=12)
+    axes[0, 0].set_ylabel('Average House Size (sq ft)', fontsize=12)
+    axes[0, 0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    
     for i, row in avg_house_size_city_type.iterrows():
-        ax.text(i, row['house_size'], f"{row['house_size']:,.0f} sq ft", ha='center', va='bottom', fontsize=12)
+        axes[0, 0].text(i, row['house_size'], f"{row['house_size']:,.0f}", 
+                       ha='center', va='bottom', fontsize=12)
     
+    # Plot 2: Average Property Size by City Type (Line plot)
+    avg_size_city_type = df.groupby('city_type')['property_size'].mean().reset_index()
+    avg_size_city_type['city_type_label'] = avg_size_city_type['city_type'].map(city_type_labels)
+    
+    sns.lineplot(x='city_type_label', y='property_size', data=avg_size_city_type, 
+                 marker='o', markersize=8, ax=axes[0, 1])
+    axes[0, 1].set_title("Average Property Size by City Type", fontsize=14)
+    axes[0, 1].set_xlabel("City Type", fontsize=12)
+    axes[0, 1].set_ylabel("Average Property Size (sq ft)", fontsize=12)
+    axes[0, 1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    
+    for i, row in avg_size_city_type.iterrows():
+        axes[0, 1].text(i, row['property_size'], f"{row['property_size']:,.0f}", 
+                       ha='center', va='bottom', fontsize=12)
+    
+    # Plot 3: Average Acre Lot by City Type (Line plot)
+    avg_acre_lot_city_type = df.groupby('city_type')['acre_lot'].mean().reset_index()
+    avg_acre_lot_city_type['city_type_label'] = avg_acre_lot_city_type['city_type'].map(city_type_labels)
+    
+    sns.lineplot(x='city_type_label', y='acre_lot', data=avg_acre_lot_city_type, 
+                 marker='o', markersize=8, ax=axes[0, 2])
+    axes[0, 2].set_title('Average Acre Lot by City Type', fontsize=14)
+    axes[0, 2].set_xlabel('City Type', fontsize=12)
+    axes[0, 2].set_ylabel('Average Acre Lot (acres)', fontsize=12)
+    axes[0, 2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))
+    
+    for i, row in avg_acre_lot_city_type.iterrows():
+        axes[0, 2].text(i, row['acre_lot'], f"{row['acre_lot']:,.2f}", 
+                       ha='center', va='bottom', fontsize=12)
+    
+    # Display the plot in Streamlit
     st.pyplot(fig)
     
     st.write("""
     ### Key Insights:
-    - **Towns** have the largest average house sizes
-    - House sizes generally decrease as city size increases
-    - **Metropolises** have the smallest average house sizes
-    - This pattern reflects the land availability and density differences
+    - Summary of Key Trends
+        - House Sizes:
+            - Larger in less densely populated areas (towns, small cities, rural, suburban).
+            - Smaller in densely populated areas (large cities, metropolises, urban).
+        - Property Sizes and Lot Sizes:
+            - Larger in rural and suburban areas.
+            - Smaller in urban areas.
+        - Population Density:
+            - Lower in towns and small cities, leading to larger houses and properties.
+            - Higher in large cities and metropolises, leading to smaller houses and properties.
+        - Bedroom and Bathroom Counts:
+            - More bedrooms in less densely populated areas.
+            - Fewer bedrooms but relatively stable bathroom counts in densely populated areas.
+        - The average house size per city type in the U.S., based on the provided graph, is as follows:
+            - Town: 1,782 sq ft
+            - Small City: 1,787 sq ft
+            - Medium City: 1,770 sq ft
+            - Large City: 1,754 sq ft
+            - Metropolis: 1,750 sq ft
+    ### Final Answer:
+        -The trend shows that house sizes are largest in less densely populated areas (towns and small cities) and decrease as population density increases in larger cities and metropolises. This is supported by related graphs showing decreasing property sizes, lot sizes, and increasing population density in more urbanized areas.
     """)
 
 # Urban/Suburban/Rural Prices section
