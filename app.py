@@ -174,55 +174,55 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Calculate averages per city_type, area_type, and region
-    avg_bed_per_city_type = df.groupby('city_type')['bed'].mean().reset_index()
-    avg_bath_per_city_type = df.groupby('city_type')['bath'].mean().reset_index()
-    avg_bed_bath_ratio_per_city_type = df.groupby('city_type')['bed_bath_ratio'].mean().reset_index()
+   # Calculate averages per city_type, area_type, and region
+avg_bed_per_city_type = df.groupby('city_type')['bed'].mean().reset_index()
+avg_bath_per_city_type = df.groupby('city_type')['bath'].mean().reset_index()
+avg_bed_bath_ratio_per_city_type = df.groupby('city_type')['bed_bath_ratio'].mean().reset_index()
 
-    avg_bed_per_area_type = df.groupby('area_type')['bed'].mean().reset_index()
-    avg_bath_per_area_type = df.groupby('area_type')['bath'].mean().reset_index()
-    avg_bed_bath_ratio_per_area_type = df.groupby('area_type')['bed_bath_ratio'].mean().reset_index()
+avg_bed_per_area_type = df.groupby('area_type')['bed'].mean().reset_index()
+avg_bath_per_area_type = df.groupby('area_type')['bath'].mean().reset_index()
+avg_bed_bath_ratio_per_area_type = df.groupby('area_type')['bed_bath_ratio'].mean().reset_index()
 
-    # Function to create the line plot with points
-    def create_lineplot_with_points(x_data, y_data, title, xlabel, ylabel):
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers', name=title))
-        fig.update_layout(title=title,
-                          xaxis_title=xlabel,
-                          yaxis_title=ylabel,
-                          template="plotly_white")
-        return fig
+# Function to create the line plot with points
+def create_lineplot_with_points(x_data, y_data, title, xlabel, ylabel):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers', name=title))
+    fig.update_layout(title=title,
+                      xaxis_title=xlabel,
+                      yaxis_title=ylabel,
+                      template="plotly_white")
+    return fig
 
-    # Create all the line plots
-    fig1 = create_lineplot_with_points(df['bed'], df['price'], 'Number of Bedrooms vs Price', 'Number of Bedrooms', 'Price')
-    fig2 = create_lineplot_with_points(df['bath'], df['price'], 'Number of Bathrooms vs Price', 'Number of Bathrooms', 'Price')
-    fig3 = create_lineplot_with_points(df['bed_bath_ratio'], df['price'], 'Bed/Bath Ratio vs Price', 'Bed to Bath Ratio', 'Price')
+# Create all the line plots
+fig1 = create_lineplot_with_points(df['bed'], df['price'], 'Number of Bedrooms vs Price', 'Number of Bedrooms', 'Price')
+fig2 = create_lineplot_with_points(df['bath'], df['price'], 'Number of Bathrooms vs Price', 'Number of Bathrooms', 'Price')
+fig3 = create_lineplot_with_points(df['bed_bath_ratio'], df['price'], 'Bed/Bath Ratio vs Price', 'Bed to Bath Ratio', 'Price')
 
-    fig4 = create_lineplot_with_points(df['bed'], df['price_per_bed'], 'Price per Bed vs Number of Bedrooms', 'Number of Bedrooms', 'Price per Bed')
-    fig5 = create_lineplot_with_points(df['bath'], df['price_per_bath'], 'Price per Bath vs Number of Bathrooms', 'Number of Bathrooms', 'Price per Bath')
-    fig6 = create_lineplot_with_points(df['bed_bath_ratio'], df['price_per_bed_bath'], 'Price per Bed & Bath vs Bed-Bath Ratio', 'Bed-Bath Ratio', 'Price per Bed & Bath')
+fig4 = create_lineplot_with_points(df['bed'], df['price_per_bed'], 'Price per Bed vs Number of Bedrooms', 'Number of Bedrooms', 'Price per Bed')
+fig5 = create_lineplot_with_points(df['bath'], df['price_per_bath'], 'Price per Bath vs Number of Bathrooms', 'Number of Bathrooms', 'Price per Bath')
+fig6 = create_lineplot_with_points(df['bed_bath_ratio'], df['price_per_bed_bath'], 'Price per Bed & Bath vs Bed-Bath Ratio', 'Bed-Bath Ratio', 'Price per Bed & Bath')
 
-    fig7 = create_lineplot_with_points(avg_bed_per_city_type['city_type'], avg_bed_per_city_type['bed'], 'Average Bedrooms per City Type', 'City Type', 'Average Bedrooms')
-    fig8 = create_lineplot_with_points(avg_bath_per_city_type['city_type'], avg_bath_per_city_type['bath'], 'Average Bathrooms per City Type', 'City Type', 'Average Bathrooms')
-    fig9 = create_lineplot_with_points(avg_bed_bath_ratio_per_city_type['city_type'], avg_bed_bath_ratio_per_city_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per City Type', 'City Type', 'Average Bed/Bath Ratio')
+fig7 = create_lineplot_with_points(avg_bed_per_city_type['city_type'], avg_bed_per_city_type['bed'], 'Average Bedrooms per City Type', 'City Type', 'Average Bedrooms')
+fig8 = create_lineplot_with_points(avg_bath_per_city_type['city_type'], avg_bath_per_city_type['bath'], 'Average Bathrooms per City Type', 'City Type', 'Average Bathrooms')
+fig9 = create_lineplot_with_points(avg_bed_bath_ratio_per_city_type['city_type'], avg_bed_bath_ratio_per_city_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per City Type', 'City Type', 'Average Bed/Bath Ratio')
 
-    fig10 = create_lineplot_with_points(avg_bed_per_area_type['area_type'], avg_bed_per_area_type['bed'], 'Average Bedrooms per Area Type', 'Area Type', 'Average Bedrooms')
-    fig11 = create_lineplot_with_points(avg_bath_per_area_type['area_type'], avg_bath_per_area_type['bath'], 'Average Bathrooms per Area Type', 'Area Type', 'Average Bathrooms')
-    fig12 = create_lineplot_with_points(avg_bed_bath_ratio_per_area_type['area_type'], avg_bed_bath_ratio_per_area_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per Area Type', 'Area Type', 'Average Bed/Bath Ratio')
+fig10 = create_lineplot_with_points(avg_bed_per_area_type['area_type'], avg_bed_per_area_type['bed'], 'Average Bedrooms per Area Type', 'Area Type', 'Average Bedrooms')
+fig11 = create_lineplot_with_points(avg_bath_per_area_type['area_type'], avg_bath_per_area_type['bath'], 'Average Bathrooms per Area Type', 'Area Type', 'Average Bathrooms')
+fig12 = create_lineplot_with_points(avg_bed_bath_ratio_per_area_type['area_type'], avg_bed_bath_ratio_per_area_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per Area Type', 'Area Type', 'Average Bed/Bath Ratio')
 
-    # Show all figures in Streamlit
-    st.plotly_chart(fig1)
-    st.plotly_chart(fig2)
-    st.plotly_chart(fig3)
-    st.plotly_chart(fig4)
-    st.plotly_chart(fig5)
-    st.plotly_chart(fig6)
-    st.plotly_chart(fig7)
-    st.plotly_chart(fig8)
-    st.plotly_chart(fig9)
-    st.plotly_chart(fig10)
-    st.plotly_chart(fig11)
-    st.plotly_chart(fig12)
+# Show all figures in Streamlit
+st.plotly_chart(fig1)
+st.plotly_chart(fig2)
+st.plotly_chart(fig3)
+st.plotly_chart(fig4)
+st.plotly_chart(fig5)
+st.plotly_chart(fig6)
+st.plotly_chart(fig7)
+st.plotly_chart(fig8)
+st.plotly_chart(fig9)
+st.plotly_chart(fig10)
+st.plotly_chart(fig11)
+st.plotly_chart(fig12)
 
     # Key insights section
     st.write("""
