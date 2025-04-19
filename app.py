@@ -1,15 +1,15 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 import requests
 import zipfile
 import io
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import PowerTransformer
+from sklearn.preprocessing import MinMaxScaler, PowerTransformer
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
