@@ -175,9 +175,14 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Function to add scatter points to line plot
-    def add_points_to_lineplot(ax, df, x_col, y_col):
-        sns.scatterplot(x=x_col, y=y_col, data=df, ax=ax, color='red', alpha=0.5, s=50)
+        # Function to add points and labels to line plots
+    def add_points_to_lineplot(ax, data, x_col, y_col):
+        # Get unique x values
+        x_values = data[x_col].unique()
+        for x in x_values:
+            y = data[data[x_col] == x][y_col].mean()
+            ax.scatter(x, y, color='blue', s=10, zorder=5)
+            ax.text(x, y, f'{y:.4f}', ha='center', va='bottom', fontsize=12)
     
     # Set Seaborn style for better aesthetics
     sns.set_style("whitegrid")
