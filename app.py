@@ -166,37 +166,40 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Plotly visualization
-    st.subheader("Price Impact of Bedrooms, Bathrooms, and Bed/Bath Ratio")
-
-    # Plot 1: Bed vs Price (using plotly express)
-    fig1 = px.line(df, x='bed', y='price', title='Bedrooms vs Price')
-    fig1.update_layout(xaxis_title='Number of Bedrooms', yaxis_title='Price')
+    # Line Plot 1: Bedrooms vs Price
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=df['bed'], y=df['price'], mode='lines+markers', name='Price'))
+    fig1.update_layout(title='Bedrooms vs Price', xaxis_title='Number of Bedrooms', yaxis_title='Price')
     st.plotly_chart(fig1)
 
-    # Plot 2: Bath vs Price
-    fig2 = px.line(df, x='bath', y='price', title='Bathrooms vs Price')
-    fig2.update_layout(xaxis_title='Number of Bathrooms', yaxis_title='Price')
+    # Line Plot 2: Bathrooms vs Price
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(x=df['bath'], y=df['price'], mode='lines+markers', name='Price'))
+    fig2.update_layout(title='Bathrooms vs Price', xaxis_title='Number of Bathrooms', yaxis_title='Price')
     st.plotly_chart(fig2)
 
-    # Plot 3: Bed/Bath Ratio vs Price
-    fig3 = px.line(df, x='bed_bath_ratio', y='price', title='Bed/Bath Ratio vs Price')
-    fig3.update_layout(xaxis_title='Bed to Bath Ratio', yaxis_title='Price')
+    # Line Plot 3: Bed/Bath Ratio vs Price
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(x=df['bed_bath_ratio'], y=df['price'], mode='lines+markers', name='Price'))
+    fig3.update_layout(title='Bed/Bath Ratio vs Price', xaxis_title='Bed to Bath Ratio', yaxis_title='Price')
     st.plotly_chart(fig3)
 
-    # Plot 4: price_per_bed vs. number of bedrooms
-    fig4 = px.line(df, x='bed', y='price_per_bed', title='Price per Bed vs. Number of Bedrooms')
-    fig4.update_layout(xaxis_title='Number of Bedrooms', yaxis_title='Price per Bed')
+    # Line Plot 4: Price per Bed vs Number of Bedrooms
+    fig4 = go.Figure()
+    fig4.add_trace(go.Scatter(x=df['bed'], y=df['price_per_bed'], mode='lines+markers', name='Price per Bed'))
+    fig4.update_layout(title='Price per Bed vs Bedrooms', xaxis_title='Number of Bedrooms', yaxis_title='Price per Bed')
     st.plotly_chart(fig4)
 
-    # Plot 5: price_per_bath vs. number of bathrooms
-    fig5 = px.line(df, x='bath', y='price_per_bath', title='Price per Bath vs. Number of Bathrooms')
-    fig5.update_layout(xaxis_title='Number of Bathrooms', yaxis_title='Price per Bath')
+    # Line Plot 5: Price per Bath vs Number of Bathrooms
+    fig5 = go.Figure()
+    fig5.add_trace(go.Scatter(x=df['bath'], y=df['price_per_bath'], mode='lines+markers', name='Price per Bath'))
+    fig5.update_layout(title='Price per Bath vs Bathrooms', xaxis_title='Number of Bathrooms', yaxis_title='Price per Bath')
     st.plotly_chart(fig5)
 
-    # Plot 6: price_per_bed_bath vs. bed_bath_ratio
-    fig6 = px.line(df, x='bed_bath_ratio', y='price_per_bed_bath', title='Price per Bed & Bath vs. Bed-Bath Ratio')
-    fig6.update_layout(xaxis_title='Bed-Bath Ratio', yaxis_title='Price per Bed & Bath')
+    # Line Plot 6: Price per Bed & Bath vs Bed-Bath Ratio
+    fig6 = go.Figure()
+    fig6.add_trace(go.Scatter(x=df['bed_bath_ratio'], y=df['price_per_bed_bath'], mode='lines+markers', name='Price per Bed & Bath'))
+    fig6.update_layout(title='Price per Bed & Bath vs Bed-Bath Ratio', xaxis_title='Bed-Bath Ratio', yaxis_title='Price per Bed & Bath')
     st.plotly_chart(fig6)
     
     # Key insights section
