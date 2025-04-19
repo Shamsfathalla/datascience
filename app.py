@@ -17,6 +17,7 @@ st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
 @st.cache_data
 def load_data():
     zip_url = "https://github.com/Shamsfathalla/datascience/raw/main/datasets.zip"
+    return df
     
     try:
         response = requests.get(zip_url)
