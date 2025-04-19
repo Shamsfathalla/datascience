@@ -489,13 +489,12 @@ X = df[features]
 y = df['price']
 
 # Get original ranges for inverse transformation (approximate)
-# These should match the original dataset before scaling
-original_price_max = 2000000  # Adjust based on original data (e.g., max price in dollars)
+original_price_max = 2000000  # Adjust based on original data
 original_price_min = 0        # Min price in dollars
 original_house_size_max = 10000  # Max house size in sq ft
-original_house_size_min = 500    # Min house size in sq ft
-original_acre_lot_max = 10.0     # Max acre lot in acres
-original_acre_lot_min = 0.1      # Min acre lot in acres
+original_house_size_min = 100    # Min house size in sq ft
+original_acre_lot_max = 30.0     # Max acre lot in acres
+original_acre_lot_min = 0.01      # Min acre lot in acres
 
 # Fit PowerTransformer for acre_lot (since original transformer is not saved)
 pt_acre_lot = PowerTransformer(method='yeo-johnson', standardize=False)
