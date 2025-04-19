@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import plotly.graph_objects as go
+import plotly.express as px
 
 # Set page config MUST BE FIRST STREAMLIT COMMAND
 st.set_page_config(page_title="U.S. Housing Market Analysis", layout="wide")
@@ -168,45 +169,69 @@ elif section == "Regional Price Differences":
         - Midwest (Lowest average property price)
     - These differences are influenced by a combination of factors, including population density, urban development, economic activity, and regional demand for housing. The West and Northeast, with their high densities and economic hubs, command the highest property prices, while the Midwest, with its lower density and slower economic growth, has the lowest property prices. The South falls in between, benefiting from moderate economic growth and increasing demand.
     """)
-
-# Bedrooms/Bathrooms Impact section
+    
+    # Bedrooms/Bathrooms Impact section
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
-    
-    # Create visualization
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    
-    # Bedrooms vs Price
-    sns.lineplot(x='bed', y='price', data=df, marker='o', ax=ax1)
-    ax1.set_title('Number of Bedrooms vs Price', fontsize=14)
-    ax1.set_xlabel('Number of Bedrooms', fontsize=12)
-    ax1.set_ylabel('Price', fontsize=12)
-    
-    # Add value labels for bedrooms
-    bed_avg = df.groupby('bed')['price'].mean().reset_index()
-    for i, row in bed_avg.iterrows():
-        ax1.text(row['bed'], row['price'], f"${row['price']:,.0f}", ha='center', va='bottom', fontsize=10)
-    
-    # Bathrooms vs Price
-    sns.lineplot(x='bath', y='price', data=df, marker='o', ax=ax2)
-    ax2.set_title('Number of Bathrooms vs Price', fontsize=14)
-    ax2.set_xlabel('Number of Bathrooms', fontsize=12)
-    ax2.set_ylabel('Price', fontsize=12)
-    
-    # Add value labels for bathrooms
-    bath_avg = df.groupby('bath')['price'].mean().reset_index()
-    for i, row in bath_avg.iterrows():
-        ax2.text(row['bath'], row['price'], f"${row['price']:,.0f}", ha='center', va='bottom', fontsize=10)
-    
-    st.pyplot(fig)
-    
+
+    # Calculate averages per city_type, area_type, and region
+    avg_bed_per_city_type = df.groupby('city_type')['bed'].mean().reset_index()
+    avg_bath_per_city_type = df.groupby('city_type')['bath'].mean().reset_index()
+    avg_bed_bath_ratio_per_city_type = df.groupby('city_type')['bed_bath_ratio'].mean().reset_index()
+
+    avg_bed_per_area_type = df.groupby('area_type')['bed'].mean().reset_index()
+    avg_bath_per_area_type = df.groupby('area_type')['bath'].mean().reset_index()
+    avg_bed_bath_ratio_per_area_type = df.groupby('area_type')['bed_bath_ratio'].mean().reset_index()
+
+    # Function to create the line plot with points
+    def create_lineplot_with_points(x_data, y_data, title, xlabel, ylabel):
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers', name=title))
+        fig.update_layout(title=title,
+                          xaxis_title=xlabel,
+                          yaxis_title=ylabel,
+                          template="plotly_white")
+        return fig
+
+    # Create all the line plots
+    fig1 = create_lineplot_with_points(df['bed'], df['price'], 'Number of Bedrooms vs Price', 'Number of Bedrooms', 'Price')
+    fig2 = create_lineplot_with_points(df['bath'], df['price'], 'Number of Bathrooms vs Price', 'Number of Bathrooms', 'Price')
+    fig3 = create_lineplot_with_points(df['bed_bath_ratio'], df['price'], 'Bed/Bath Ratio vs Price', 'Bed to Bath Ratio', 'Price')
+
+    fig4 = create_lineplot_with_points(df['bed'], df['price_per_bed'], 'Price per Bed vs Number of Bedrooms', 'Number of Bedrooms', 'Price per Bed')
+    fig5 = create_lineplot_with_points(df['bath'], df['price_per_bath'], 'Price per Bath vs Number of Bathrooms', 'Number of Bathrooms', 'Price per Bath')
+    fig6 = create_lineplot_with_points(df['bed_bath_ratio'], df['price_per_bed_bath'], 'Price per Bed & Bath vs Bed-Bath Ratio', 'Bed-Bath Ratio', 'Price per Bed & Bath')
+
+    fig7 = create_lineplot_with_points(avg_bed_per_city_type['city_type'], avg_bed_per_city_type['bed'], 'Average Bedrooms per City Type', 'City Type', 'Average Bedrooms')
+    fig8 = create_lineplot_with_points(avg_bath_per_city_type['city_type'], avg_bath_per_city_type['bath'], 'Average Bathrooms per City Type', 'City Type', 'Average Bathrooms')
+    fig9 = create_lineplot_with_points(avg_bed_bath_ratio_per_city_type['city_type'], avg_bed_bath_ratio_per_city_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per City Type', 'City Type', 'Average Bed/Bath Ratio')
+
+    fig10 = create_lineplot_with_points(avg_bed_per_area_type['area_type'], avg_bed_per_area_type['bed'], 'Average Bedrooms per Area Type', 'Area Type', 'Average Bedrooms')
+    fig11 = create_lineplot_with_points(avg_bath_per_area_type['area_type'], avg_bath_per_area_type['bath'], 'Average Bathrooms per Area Type', 'Area Type', 'Average Bathrooms')
+    fig12 = create_lineplot_with_points(avg_bed_bath_ratio_per_area_type['area_type'], avg_bed_bath_ratio_per_area_type['bed_bath_ratio'], 'Average Bed/Bath Ratio per Area Type', 'Area Type', 'Average Bed/Bath Ratio')
+
+    # Show all figures in Streamlit
+    st.plotly_chart(fig1)
+    st.plotly_chart(fig2)
+    st.plotly_chart(fig3)
+    st.plotly_chart(fig4)
+    st.plotly_chart(fig5)
+    st.plotly_chart(fig6)
+    st.plotly_chart(fig7)
+    st.plotly_chart(fig8)
+    st.plotly_chart(fig9)
+    st.plotly_chart(fig10)
+    st.plotly_chart(fig11)
+    st.plotly_chart(fig12)
+
+    # Key insights section
     st.write("""
     ### Key Insights:
-    - Prices generally increase with more bedrooms and bathrooms, but the relationship isn't perfectly linear
+    - Prices generally increase with more bedrooms and bathrooms, but the relationship isn't perfectly linear.
     - The biggest price jumps occur when moving from:
         - 2 to 3 bedrooms
         - 1 to 2 bathrooms
-    - Homes with 5+ bedrooms or 4+ bathrooms show more variability in pricing
+    - Homes with 5+ bedrooms or 4+ bathrooms show more variability in pricing.
     """)
 
 # House Size by City Type section
