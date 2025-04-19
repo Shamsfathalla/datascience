@@ -166,104 +166,50 @@ elif section == "Regional Price Differences":
 elif section == "Bedrooms/Bathrooms Impact":
     st.header("2. How does the number of bedrooms and bathrooms affect home prices?")
 
-    # Create Plotly figures
-    # Plot 1: Bedrooms vs Price
-    fig1 = go.Figure()
-    # Line plot
-    bed_avg = df.groupby('bed')['price'].mean().reset_index()
-    fig1.add_trace(go.Scatter(
-        x=bed_avg['bed'],
-        y=bed_avg['price'],
-        mode='lines',
-        name='Average Price',
-        line=dict(color='blue')
-    ))
-    # Scatter points
-    fig1.add_trace(go.Scatter(
-        x=df['bed'],
-        y=df['price'],
-        mode='markers',
-        name='Individual Houses',
-        marker=dict(size=6, color='red', opacity=0.5),
-        text=df.apply(lambda row: f"Bed: {row['bed']:.4f}<br>Price: {row['price']:.4f}", axis=1),
-        hoverinfo='text'
-    ))
-    fig1.update_layout(
-        title="Bedrooms vs Price",
-        xaxis_title="Number of Bedrooms",
-        yaxis_title="Price",
-        height=400,
-        showlegend=True,
-        xaxis=dict(tickformat=".4f"),
-        yaxis=dict(tickformat=".4f")
-    )
-
-    # Plot 2: Bathrooms vs Price
-    fig2 = go.Figure()
-    # Line plot
-    bath_avg = df.groupby('bath')['price'].mean().reset_index()
-    fig2.add_trace(go.Scatter(
-        x=bath_avg['bath'],
-        y=bath_avg['price'],
-        mode='lines',
-        name='Average Price',
-        line=dict(color='blue')
-    ))
-    # Scatter points
-    fig2.add_trace(go.Scatter(
-        x=df['bath'],
-        y=df['price'],
-        mode='markers',
-        name='Individual Houses',
-        marker=dict(size=6, color='red', opacity=0.5),
-        text=df.apply(lambda row: f"Bath: {row['bath']:.4f}<br>Price: {row['price']:.4f}", axis=1),
-        hoverinfo='text'
-    ))
-    fig2.update_layout(
-        title="Bathrooms vs Price",
-        xaxis_title="Number of Bathrooms",
-        yaxis_title="Price",
-        height=400,
-        showlegend=True,
-        xaxis=dict(tickformat=".4f"),
-        yaxis=dict(tickformat=".4f")
-    )
-
-    # Plot 3: Bed/Bath Ratio vs Price
-    fig3 = go.Figure()
-    # Line plot
-    ratio_avg = df.groupby('bed_bath_ratio')['price'].mean().reset_index()
-    fig3.add_trace(go.Scatter(
-        x=ratio_avg['bed_bath_ratio'],
-        y=ratio_avg['price'],
-        mode='lines',
-        name='Average Price',
-        line=dict(color='blue')
-    ))
-    # Scatter points
-    fig3.add_trace(go.Scatter(
-        x=df['bed_bath_ratio'],
-        y=df['price'],
-        mode='markers',
-        name='Individual Houses',
-        marker=dict(size=6, color='red', opacity=0.5),
-        text=df.apply(lambda row: f"Ratio: {row['bed_bath_ratio']:.4f}<br>Price: {row['price']:.4f}", axis=1),
-        hoverinfo='text'
-    ))
-    fig3.update_layout(
-        title="Bed/Bath Ratio vs Price",
-        xaxis_title="Bed to Bath Ratio",
-        yaxis_title="Price",
-        height=400,
-        showlegend=True,
-        xaxis=dict(tickformat=".4f"),
-        yaxis=dict(tickformat=".4f")
-    )
-
-    # Display plots
-    st.plotly_chart(fig1, use_container_width=True)
-    st.plotly_chart(fig2, use_container_width=True)
-    st.plotly_chart(fig3, use_container_width=True)
+    # Function to add scatter points to line plot
+    def add_points_to_lineplot(ax, df, x_col, y_col):
+        sns.scatterplot(x=x_col, y=y_col, data=df, ax=ax, color='red', alpha=0.5, s=50)
+    
+    # Set Seaborn style for better aesthetics
+    sns.set_style("whitegrid")
+    
+    # Create a figure with three subplots
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    
+    # Plot 1: Bed vs Price
+    sns.lineplot(x='bed', y='price', data=df, ax=axes[0])
+    add_points_to_lineplot(axes[0], df, 'bed', 'price')
+    axes[0].set_title('Bedrooms vs Price')
+    axes[0].set_xlabel('Number of Bedrooms')
+    axes[0].set_ylabel('Price')
+    # Format y-axis to show 4 decimal places
+    axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+    
+    # Plot 2: Bath vs Price
+    sns.lineplot(x='bath', y='price', data=df, ax=axes[1])
+    add_points_to_lineplot(axes[1], df, 'bath', 'price')
+    axes[1].set_title('Bathrooms vs Price')
+    axes[1].set_xlabel('Number of Bathrooms')
+    axes[1].set_ylabel('Price')
+    # Format y-axis to show 4 decimal places
+    axes[1].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+    
+    # Plot 3: Bed_Bath_Ratio vs Price
+    sns.lineplot(x='bed_bath_ratio', y='price', data=df, ax=axes[2])
+    add_points_to_lineplot(axes[2], df, 'bed_bath_ratio', 'price')
+    axes[2].set_title('Bed/Bath Ratio vs Price')
+    axes[2].set_xlabel('Bed to Bath Ratio')
+    axes[2].set_ylabel('Price')
+    # Format y-axis to show 4 decimal places
+    axes[2].yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.4f}'))
+    # Format x-axis to show 4 decimal places for bed_bath_ratio
+    axes[2].xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.4f}'))
+    
+    # Adjust layout to prevent overlap
+    plt.tight_layout()
+    
+    # Display the plot in Streamlit
+    st.pyplot(fig)
     
     # Key insights section
     st.write("""
